@@ -375,6 +375,29 @@
       .subj-card .scur { font-size: 11px; font-weight: 800; color: var(--accent); }
       @media (prefers-color-scheme: dark) { .subj-card .scur { color: var(--ink); } }
 
+      /* 資格（区分）選択カード */
+      .track-card {
+        display: block; width: 100%; text-align: left; margin-top: 12px;
+        background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
+        padding: 18px 16px; box-shadow: var(--shadow); color: var(--ink);
+      }
+      .track-card:active { transform: scale(.995); }
+      .track-card .tname { display: block; font-weight: 800; font-size: 20px; line-height: 1.4; }
+      .track-card .tdesc { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+      .track-card .tsubs { display: block; font-size: 13px; line-height: 1.8; margin-top: 9px; }
+      .track-card .tprog { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+      .track-card .tprog .trate { font-weight: 800; font-size: 16px; color: var(--accent); }
+      @media (prefers-color-scheme: dark) { .track-card .tprog .trate { color: var(--ink); } }
+      .track-card .tprog .tprog-label { font-size: 11.5px; color: var(--ink-soft); }
+      .track-card .tprog .mini-bar { margin-left: auto; }
+      .track-card .tgo { display: block; margin-top: 10px; font-weight: 800; color: var(--accent); font-size: 14.5px; }
+      @media (prefers-color-scheme: dark) { .track-card .tgo { color: var(--ink); } }
+      .change-track-row { margin-top: 12px; }
+
+      /* 大項目カードの補足（中項目・小項目）と収録なし表示 */
+      .cat-card .csub { display: block; font-size: 12px; color: var(--ink-soft); margin-top: 5px; line-height: 1.65; }
+      .cat-card.disabled { opacity: .72; cursor: default; }
+
       /* 図・表問題の注記 */
       .fig-note {
         margin-top: 14px; border: 1.5px dashed var(--warn); color: var(--warn);
@@ -524,7 +547,7 @@
       var DATA = null;           // 選択中科目のデータ全体（科目ごとに遅延ロード）
       var QMAP = {};             // id -> {q, session, groupNo}
       var CATS = [];             // 選択中科目のカテゴリ [{name, short}]
-      var view = { tab: "home", mode: "session", sessionId: null, category: null, qIndex: 0, reviewIds: null, reviewPos: 0 };
+      var view = { tab: "home", mode: "category", sessionId: null, category: null, qIndex: 0, reviewIds: null, reviewPos: 0 };
       var pendingResume = null;  // 科目データ読み込み後に適用する再開位置
       /* アカウント／クラウド同期の状態（Supabaseが使えない環境では常に未ログイン扱い） */
       var authUser = null;       // ログイン中のユーザー（nullなら未ログイン）
@@ -556,22 +579,143 @@
         for (var i = 0; i < SUBJECTS.length; i++) if (SUBJECTS[i].key === key) return SUBJECTS[i];
         return null;
       }
+
+      /* ---------- 資格区分（最初に伝送交換／線路を選ぶ） ---------- */
+      var TRACKS = [
+        { key: "denso", name: "伝送交換主任技術者", short: "伝送交換", desc: "伝送交換設備の工事、維持及び運用" },
+        { key: "senro", name: "線路主任技術者", short: "線路", desc: "線路設備の工事、維持及び運用" }
+      ];
+      SUBJECTS.forEach(function (s) {
+        s.tracks = s.group === "共通" ? ["denso", "senro"] : (s.group === "伝送交換" ? ["denso"] : ["senro"]);
+      });
+      function findTrack(key) {
+        for (var i = 0; i < TRACKS.length; i++) if (TRACKS[i].key === key) return TRACKS[i];
+        return null;
+      }
+      function trackKey() { return findTrack(store.trackKey) ? store.trackKey : null; }
+      function subjectsForTrack(tk) {
+        return SUBJECTS.filter(function (s) { return s.tracks.indexOf(tk) >= 0; });
+      }
+      function trackProgress(tk) {
+        var total = 0, answered = 0, correct = 0;
+        subjectsForTrack(tk).forEach(function (s) {
+          var pr = subjectProgress(s.key);
+          total += s.questions; answered += pr.answered; correct += pr.correct;
+        });
+        return { total: total, answered: answered, correct: correct };
+      }
+
+      /* ---------- 大項目（カテゴリ）定義 ----------
+         法規は公式出題範囲の大項目（番号は公式表どおり）。cats は収録データの分類名。
+         大項目4「サイバーセキュリティ基本法」と8「その他関連する法令など」は、公式範囲には
+         含まれるが単独の分類の問題が収録データにないため cats を空にし、画面では収録なしと示す。
+         他科目は、収録データの細分類を大項目にまとめたもの（設備科目は公式の小区分に合わせた）。 */
+      var MAJORS = {
+        houki: [
+          { no: 1, name: "電気通信事業法及びこれに基づく命令", cats: ["電気通信事業法及び命令"], sub: "中項目：電気通信事業法／事業法に基づく命令（電気通信事業法施行規則・事業用電気通信設備規則・端末設備等規則・電気通信主任技術者規則・その他の政省令等）" },
+          { no: 2, name: "有線電気通信法及びこれに基づく命令", cats: ["有線電気通信法及び命令"], sub: "中項目：有線電気通信法／有線電気通信法に基づく命令（有線電気通信設備令・同施行規則・その他の政省令等）" },
+          { no: 3, name: "電波法及びこれに基づく命令", cats: ["電波法及び命令"], sub: "中項目：電波法／電波法に基づく命令（電波法施行規則・無線従事者規則・無線設備規則・その他の政省令等）" },
+          { no: 4, name: "サイバーセキュリティ基本法", cats: [], sub: "中項目：総則・サイバーセキュリティ戦略・基本的施策" },
+          { no: 5, name: "不正アクセス行為の禁止等に関する法律及びこれに基づく命令", cats: ["不正アクセス禁止法"], sub: "中項目：不正アクセス行為の禁止等に関する法律／同法に基づく命令" },
+          { no: 6, name: "電子署名及び認証業務に関する法律及びこれに基づく命令", cats: ["電子署名法"], sub: "中項目：電子署名及び認証業務に関する法律／同法に基づく命令" },
+          { no: 7, name: "国際電気通信連合憲章及び国際電気通信連合条約の大要", cats: ["ITU憲章・条約の大要"], sub: "中項目：国際電気通信連合憲章／国際電気通信連合条約" },
+          { no: 8, name: "その他関連する法令など", cats: [], sub: "小項目：放送法・個人情報保護に関する法律・特定電気通信役務提供者の損害賠償責任の制限及び発信者情報の開示に関する法律・特定電子メールの送信の適正化等に関する法律・携帯音声通信事業者による契約者等の本人確認等に関する法律・労働安全衛生法・建設業法・災害対策基本法／関連するガイドライン" }
+        ],
+        system: [
+          { name: "電気通信工学の基礎", cats: ["電気工学の基礎"], sub: "公式区分「電気通信システム」の (1) 電気通信工学の基礎にあたる分野" },
+          { name: "伝送・交換の基礎", cats: ["伝送の基礎", "交換の基礎"], sub: "公式区分「電気通信システム」の (2) 電気通信システムの大要にあたる分野" },
+          { name: "データ通信・無線の基礎", cats: ["データ通信の基礎", "無線の基礎"], sub: "公式区分「電気通信システム」の (2) 電気通信システムの大要にあたる分野" },
+          { name: "通信電力の基礎", cats: ["通信電力の基礎"], sub: "公式区分「電気通信システム」の (2) 電気通信システムの大要にあたる分野" }
+        ],
+        setubi_ts: [
+          { name: "伝送交換設備の概要", cats: ["伝送設備", "交換設備", "データ通信設備", "無線設備", "通信電力設備"], sub: "公式区分：伝送交換設備の概要" },
+          { name: "設備管理", cats: ["設備管理"], sub: "公式区分：設備管理" },
+          { name: "セキュリティ管理", cats: ["セキュリティ管理"], sub: "公式区分：セキュリティ管理" },
+          { name: "ソフトウェア管理", cats: ["ソフトウェア管理"], sub: "公式区分：ソフトウェア管理" }
+        ],
+        senro: [
+          { name: "線路設備の概要", cats: ["通信線路", "通信土木", "水底線路"], sub: "公式区分：線路設備の概要" },
+          { name: "設備管理", cats: ["線路設備管理"], sub: "公式区分：設備管理" },
+          { name: "セキュリティ管理", cats: ["セキュリティ管理"], sub: "公式区分：セキュリティ管理" }
+        ],
+        senmon_denso: [
+          { name: "伝送工学の基礎", cats: ["伝送工学の基礎"] },
+          { name: "伝送方式・多重化", cats: ["伝送方式・多重化"] },
+          { name: "光・メタリック伝送", cats: ["光伝送", "メタリック伝送"] },
+          { name: "伝送設備設計", cats: ["伝送設備設計"] }
+        ],
+        senmon_musen: [
+          { name: "電波伝搬・アンテナ", cats: ["電波伝搬", "アンテナ"] },
+          { name: "無線設備", cats: ["無線設備"] },
+          { name: "移動通信", cats: ["移動通信"] },
+          { name: "衛星・固定無線", cats: ["衛星・固定無線"] }
+        ],
+        senmon_kokan: [
+          { name: "交換方式・信号方式", cats: ["交換方式", "信号方式", "デジタル交換設備", "交換設備設計"] },
+          { name: "IPネットワーク・LAN", cats: ["ネットワーク技術", "IPネットワーク", "LAN・イーサネット", "LAN技術", "無線LAN", "ネットワーク管理", "マルチメディア技術"] },
+          { name: "トラヒック", cats: ["トラヒック"] },
+          { name: "伝送・アクセス技術", cats: ["伝送・アクセス技術", "アクセス伝送", "伝送技術", "無線通信"] },
+          { name: "セキュリティ", cats: ["セキュリティ"] }
+        ],
+        senmon_data: [
+          { name: "コンピュータ・ソフトウェアの基礎", cats: ["コンピュータ基礎", "ソフトウェア", "データベース"] },
+          { name: "データ通信方式・プロトコル", cats: ["データ通信方式", "プロトコル"] },
+          { name: "LAN・WAN・インターネット", cats: ["LAN・WAN", "インターネット"] },
+          { name: "データ設備設計・情報セキュリティ", cats: ["データ設備設計", "情報セキュリティ"] }
+        ],
+        senmon_denryoku: [
+          { name: "通信電力工学・電源装置", cats: ["通信電力工学", "電源装置"] },
+          { name: "予備電源", cats: ["予備電源"] },
+          { name: "電力設備設計", cats: ["電力設備設計"] }
+        ],
+        senmon_senro: [
+          { name: "通信線路工学・メタリックケーブル", cats: ["通信線路工学", "メタリックケーブル"] },
+          { name: "光ファイバケーブル", cats: ["光ファイバケーブル"] },
+          { name: "線路設備設計", cats: ["線路設備設計"] }
+        ],
+        senmon_doboku: [
+          { name: "通信土木工学", cats: ["通信土木工学"] },
+          { name: "とう道・管路・マンホール", cats: ["とう道", "管路・マンホール"] },
+          { name: "土木設備設計", cats: ["土木設備設計"] }
+        ],
+        senmon_suitei: [
+          { name: "水底線路工学・海底ケーブル", cats: ["水底線路工学", "海底ケーブル"] },
+          { name: "敷設・保守", cats: ["敷設・保守"] },
+          { name: "水底設備設計", cats: ["水底設備設計"] }
+        ]
+      };
+      /* 科目の大項目一覧を作る。定義に含まれない細分類があれば、その細分類自体を大項目として末尾に足し、漏れを防ぐ */
+      function majorsFor(subjectKey, fineCats) {
+        var covered = {}, out = [];
+        (MAJORS[subjectKey] || []).forEach(function (d) {
+          (d.cats || []).forEach(function (c) { covered[c] = 1; });
+          out.push({ name: d.name, short: d.name, no: d.no || null, sub: d.sub || "", cats: (d.cats || []).slice() });
+        });
+        fineCats.forEach(function (c) {
+          if (!covered[c]) out.push({ name: c, short: c, no: null, sub: "", cats: [c] });
+        });
+        return out;
+      }
       /* 公式に全員正解（＊）とされた問題：どの選択肢を選んでも正解扱いにする */
       var FREE_CORRECT = { "senro-25_1-3-5": true };
 
-      /* 法規のカテゴリ（公式6区分・表示順と短い名前）。他科目はデータの出現順を使う */
-      var HOUKI_CATEGORIES = [
-        { name: "電気通信事業法及び命令", short: "電気通信事業法" },
-        { name: "有線電気通信法及び命令", short: "有線電気通信法" },
-        { name: "電波法及び命令", short: "電波法" },
-        { name: "不正アクセス禁止法", short: "不正アクセス禁止法" },
-        { name: "電子署名法", short: "電子署名法" },
-        { name: "ITU憲章・条約の大要", short: "ITU憲章・条約" }
-      ];
+      /* 大項目の表示名。大項目名が渡されればそのまま、細分類（中項目）の名前が渡されれば
+         それを含む大項目名を返す（以前の保存データとの互換のため） */
       function categoryShort(name) {
-        for (var i = 0; i < CATS.length; i++) if (CATS[i].name === name) return CATS[i].short;
+        var i, j;
+        for (i = 0; i < CATS.length; i++) if (CATS[i].name === name) return CATS[i].short;
+        for (i = 0; i < CATS.length; i++) {
+          var cs = CATS[i].cats || [];
+          for (j = 0; j < cs.length; j++) if (cs[j] === name) return CATS[i].short;
+        }
         return name;
       }
+      /* 大項目名 → その大項目に含まれる細分類名の一覧（大項目でない名前は、それ自体を細分類として扱う） */
+      function catSetFor(name) {
+        for (var i = 0; i < CATS.length; i++) if (CATS[i].name === name) return CATS[i].cats || [name];
+        return [name];
+      }
+      function inCategory(q, name) { return catSetFor(name).indexOf(q.cat) >= 0; }
       /* 問題IDから科目を判定（法規以外はIDに科目接頭辞が付く） */
       function subjectOfId(id) {
         for (var i = 0; i < SUBJECTS.length; i++) {
@@ -594,7 +738,7 @@
         var out = [];
         DATA.sessions.forEach(function (s) {
           s.groups.forEach(function (g) {
-            g.questions.forEach(function (q) { if (q.cat === catName) out.push(q); });
+            g.questions.forEach(function (q) { if (inCategory(q, catName)) out.push(q); });
           });
         });
         return out;
@@ -725,11 +869,7 @@
             });
           });
         });
-        if (curSubject.key === "houki") {
-          CATS = HOUKI_CATEGORIES.filter(function (c) { return !!seen[c.name]; });
-        } else {
-          CATS = order.map(function (n) { return { name: n, short: n }; });
-        }
+        CATS = majorsFor(curSubject.key, order);
       }
       function selectSubject(key) {
         var sub = findSubject(key);
@@ -742,7 +882,9 @@
           .then(function (data) {
             curSubject = sub; DATA = data;
             buildIndex();
-            store.subjectKey = key; saveStore();
+            store.subjectKey = key;
+            if (!trackKey() && sub.tracks.length === 1) store.trackKey = sub.tracks[0];
+            saveStore();
             view.tab = "home"; view.sessionId = null; view.category = null; view.reviewIds = null; view.qIndex = 0;
             syncProfileHeader();
             if (pendingResume && pendingResume.subjectKey === key && applyResume(pendingResume)) {
@@ -768,6 +910,7 @@
 
       function render() {
         document.body.classList.toggle("in-quiz", view.tab === "quiz" || view.tab === "reviewQuiz");
+        if (view.tab === "tracks") { renderTracks(); return; }
         if (view.tab === "subjects" || !DATA) { renderSubjects(); return; }
         updateTabs();
         updateWrongBadge();
@@ -781,7 +924,7 @@
       }
 
       function updateTabs() {
-        var map = { home: "home", subjects: "home", quiz: "home", review: "review", reviewQuiz: "review", stats: "stats" };
+        var map = { home: "home", tracks: "home", subjects: "home", quiz: "home", review: "review", reviewQuiz: "review", stats: "stats" };
         var cur = map[view.tab] || "home";
         var btns = document.querySelectorAll(".tabs button");
         for (var i = 0; i < btns.length; i++) {
@@ -810,13 +953,70 @@
           ' 全' + DATA.sessions.length + '回分（' + total + '問）を収録</footer>';
       }
 
-      /* ----- 科目選択画面 ----- */
-      function renderSubjects() {
+      /* ----- 資格選択画面（最初に伝送交換／線路を選ぶ） ----- */
+      function renderTracks() {
         document.body.classList.remove("in-quiz");
         updateTabs();
         updateWrongBadge();
-        var html = '<h2 class="sec">科目を選ぶ</h2>' +
-          '<p class="lead">電気通信主任技術者試験の全科目です。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>';
+        var html = '<h2 class="sec">資格を選ぶ</h2>' +
+          '<p class="lead">電気通信主任技術者は「伝送交換」と「線路」の2区分です。まず受験する区分を選んでください（あとから変更できます）。共通科目の電気通信システムと法規は、どちらの区分にも含まれます。</p>';
+        var lpT = lastPos();
+        if (lpT) {
+          html += '<button type="button" class="resume-card" id="resumeBtn">' +
+            '<span class="resume-title">▶ つづきから再開</span>' +
+            '<span class="resume-sub">' + esc(resumeText(lpT)) + '</span></button>';
+        }
+        html += accountCardHtml();
+        TRACKS.forEach(function (tr) {
+          var subs = subjectsForTrack(tr.key);
+          var tp = trackProgress(tr.key);
+          var pct = tp.total ? Math.round(tp.answered / tp.total * 100) : 0;
+          var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) + '%' : '—';
+          var cur = trackKey() === tr.key;
+          html += '<button type="button" class="track-card" data-track="' + tr.key + '">' +
+            '<span class="tname">' + esc(tr.name) + (cur ? ' <span class="scur" style="font-size:12px;font-weight:800;color:var(--accent)">選択中</span>' : '') + '</span>' +
+            '<span class="tdesc">' + esc(tr.desc) + ' ・ 全' + subs.length + '科目</span>' +
+            '<span class="tsubs">' + subs.map(function (s) { return esc(s.name); }).join("、") + '</span>' +
+            '<span class="tprog"><span class="trate">' + rate + '</span>' +
+            '<span class="tprog-label">正答率 ・ 回答済み ' + tp.answered + ' / ' + tp.total + ' 問</span>' +
+            '<span class="mini-bar"><i style="width:' + pct + '%"></i></span></span>' +
+            '<span class="tgo">この区分の科目を見る →</span></button>';
+        });
+        html += sourceFooter();
+        app.innerHTML = html;
+        bindAccountCard();
+        var tcards = app.querySelectorAll("[data-track]");
+        for (var i = 0; i < tcards.length; i++) {
+          tcards[i].addEventListener("click", function () {
+            store.trackKey = this.getAttribute("data-track");
+            saveStore();
+            view.tab = "subjects";
+            renderSubjects();
+          });
+        }
+        var rbT = document.getElementById("resumeBtn");
+        if (rbT) rbT.addEventListener("click", function () {
+          var lp = lastPos(); if (!lp) return;
+          if (curSubject && curSubject.key === lp.subjectKey && DATA) {
+            if (applyResume(lp)) render();
+          } else {
+            pendingResume = lp;
+            selectSubject(lp.subjectKey);
+          }
+        });
+      }
+
+      /* ----- 科目選択画面（選んだ区分の科目だけを表示） ----- */
+      function renderSubjects() {
+        if (!trackKey()) { renderTracks(); return; }
+        document.body.classList.remove("in-quiz");
+        updateTabs();
+        updateWrongBadge();
+        var tk = trackKey();
+        var trk = findTrack(tk);
+        var html = '<h2 class="sec">科目を選ぶ（' + esc(trk.short) + '）</h2>' +
+          '<p class="lead">' + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側に大項目付きで収録されています。</p>' +
+          '<div class="change-track-row"><button type="button" class="back-btn" id="changeTrackBtn">← 資格（伝送交換／線路）を変える</button></div>';
         var lpS = lastPos();
         if (lpS) {
           html += '<button type="button" class="resume-card" id="resumeBtn">' +
@@ -824,10 +1024,15 @@
             '<span class="resume-sub">' + esc(resumeText(lpS)) + '</span></button>';
         }
         html += accountCardHtml();
-        SUBJECT_GROUPS.forEach(function (gname) {
-          html += '<div class="subj-group-title">' + esc(gname) + '</div><div class="cat-list" style="margin-top:6px">';
-          SUBJECTS.forEach(function (sub) {
-            if (sub.group !== gname) return;
+        var trackSubs = subjectsForTrack(tk);
+        var sections = [
+          { title: "共通科目", list: trackSubs.filter(function (s) { return s.group === "共通"; }) },
+          { title: trk.short + "の科目（設備・専門的能力）", list: trackSubs.filter(function (s) { return s.group !== "共通"; }) }
+        ];
+        sections.forEach(function (sec) {
+          if (!sec.list.length) return;
+          html += '<div class="subj-group-title">' + esc(sec.title) + '</div><div class="cat-list" style="margin-top:6px">';
+          sec.list.forEach(function (sub) {
             var pr = subjectProgress(sub.key);
             var pct = sub.questions ? Math.round(pr.answered / sub.questions * 100) : 0;
             var rate = pr.answered ? Math.round(pr.correct / pr.answered * 100) + '%' : '—';
@@ -852,6 +1057,8 @@
             selectSubject(this.getAttribute("data-subject"));
           });
         }
+        var ctb = document.getElementById("changeTrackBtn");
+        if (ctb) ctb.addEventListener("click", function () { view.tab = "tracks"; renderTracks(); });
         var rbS = document.getElementById("resumeBtn");
         if (rbS) rbS.addEventListener("click", function () {
           var lp = lastPos(); if (!lp) return;
@@ -880,7 +1087,7 @@
         var pct = totalU ? Math.round(ansU / totalU * 100) : 0;
         var rate = ansU ? Math.round(corU / ansU * 100) : 0;
         var html = '<div class="subject-bar"><span><span class="sb-name">' + esc(curSubject.name) + '</span>' +
-          '<span class="sb-group">' + esc(curSubject.group) + '</span></span>' +
+          '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span>' +
           '<button type="button" id="changeSubjectBtn">科目を変える</button></div>';
         var lpH = lastPos();
         if (lpH && lpH.subjectKey === curSubject.key) {
@@ -915,27 +1122,37 @@
 
         html += '<div class="mode-switch" role="group" aria-label="解き方の切り替え">' +
           '<button type="button" data-mode="session"' + (view.mode === "session" ? ' class="on"' : "") + '>試験回で解く<small>1回分を通しで解く</small></button>' +
-          '<button type="button" data-mode="category"' + (view.mode === "category" ? ' class="on"' : "") + '>カテゴリで解く<small>同じ分野を集中して解く</small></button>' +
+          '<button type="button" data-mode="category"' + (view.mode === "category" ? ' class="on"' : "") + '>大項目で解く<small>分野ごとに集中して解く</small></button>' +
           '</div>';
 
         if (view.mode === "category") {
-          html += '<h2 class="sec">カテゴリを選ぶ</h2>' +
-            '<p class="lead">分野ごとに、全' + DATA.sessions.length + '回分から集めた問題をまとめて解けます。タップすると続きから解けます。</p><div class="cat-list">';
+          html += '<h2 class="sec">大項目を選ぶ</h2>' +
+            '<p class="lead">' + (curSubject.key === "houki"
+              ? '法規の公式出題範囲の「大項目」ごとに、全' + DATA.sessions.length + '回分から集めた問題をまとめて解けます。各カードに中項目・小項目の内訳を示しています。'
+              : '大項目ごとに、全' + DATA.sessions.length + '回分から集めた問題をまとめて解けます。各カードのチップは、その大項目に含まれる分野です。') +
+            'タップすると続きから解けます。</p><div class="cat-list">';
           CATS.forEach(function (c) {
             var st = categoryStats(c.name);
-            if (!st.total) return;
+            var title = (c.no ? c.no + "．" : "") + c.name;
+            if (!st.total) {
+              html += '<div class="cat-card disabled">' +
+                '<span class="cbody"><span class="cname">' + esc(title) + '</span><br>' +
+                '<span class="cmeta">収録問題なし（公式の出題範囲には含まれますが、この大項目だけの問題は収録データに分類されていません）</span>' +
+                (c.sub ? '<span class="csub">' + esc(c.sub) + '</span>' : '') + '</span></div>';
+              return;
+            }
             var cpct = Math.round(st.answered / st.total * 100);
             var crate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
             var done = st.answered === st.total;
+            var typeText = [st.types.single ? '選択 ' + st.types.single : '', st.types.combo ? '複合選択 ' + st.types.combo : '', st.types.fill ? '穴埋め ' + st.types.fill : ''].filter(Boolean).join(' ・ ');
             html += '<button type="button" class="cat-card" data-category="' + esc(c.name) + '">' +
-              '<span class="cbody"><span class="cname">' + esc(c.name) + '</span><br>' +
+              '<span class="cbody"><span class="cname">' + esc(title) + '</span><br>' +
               '<span class="cmeta">' + (done ? '全問回答済み' : st.answered + ' / ' + st.total + ' 問 回答済み') +
-              (st.wrong ? ' ・ 間違い ' + st.wrong + ' 問' : '') + '</span>' +
-              '<span class="ctypes">' +
-              (st.types.single ? '<span>選択 ' + st.types.single + '</span>' : '') +
-              (st.types.combo ? '<span>複合選択 ' + st.types.combo + '</span>' : '') +
-              (st.types.fill ? '<span>穴埋め ' + st.types.fill + '</span>' : '') +
-              '</span></span>' +
+              (st.wrong ? ' ・ 間違い ' + st.wrong + ' 問' : '') +
+              (typeText ? '<br>' + typeText : '') + '</span>' +
+              (c.sub ? '<span class="csub">' + esc(c.sub) + '</span>' : '') +
+              ((c.cats && c.cats.length > 1) ? '<span class="ctypes">' + c.cats.map(function (fc) { return '<span>' + esc(fc) + '</span>'; }).join("") + '</span>' : '') +
+              '</span>' +
               '<span class="cright"><span class="crate">' + crate + '</span>' +
               '<span class="cprog"> 正答率</span>' +
               '<span class="mini-bar"><i style="width:' + cpct + '%"></i></span></span></button>';
@@ -1079,7 +1296,7 @@
           html += '<div class="qnav qnav-scroll">';
           DATA.sessions.forEach(function (s) {
             var inCat = [];
-            s.groups.forEach(function (g) { g.questions.forEach(function (qq) { if (qq.cat === view.category) inCat.push(qq); }); });
+            s.groups.forEach(function (g) { g.questions.forEach(function (qq) { if (inCategory(qq, view.category)) inCat.push(qq); }); });
             if (!inCat.length) return;
             html += '<span class="grouplabel">' + esc(s.sessionLabel) + '</span>';
             inCat.forEach(function (qq) {
@@ -1106,9 +1323,11 @@
           html += '</div>';
         }
 
+        var majorLabel = categoryShort(q.cat);
         html += '<div class="qcard"><div class="qmeta">' +
           '<span class="tag">問' + meta.groupNo + '（' + esc(meta.session.sessionLabel) + '）</span>' +
-          '<span class="tag">' + esc(q.cat) + '</span>' +
+          '<span class="tag">' + esc(majorLabel) + '</span>' +
+          (q.cat && q.cat !== majorLabel ? '<span class="tag">' + esc(q.cat) + '</span>' : '') +
           '<span class="tag type">' + (q.type === "combo" ? "複合選択" : q.type === "fill" ? "穴埋め" : "選択") + '</span>' +
           '</div>';
 
@@ -1292,11 +1511,11 @@
         if (view.category) {
           var cst = categoryStats(view.category);
           var crate = cst.answered ? Math.round(cst.correct / cst.answered * 100) : 0;
-          var chtml = '<div class="quiz-head"><button type="button" class="back-btn" id="backBtn">← カテゴリの選択へ</button>' +
+          var chtml = '<div class="quiz-head"><button type="button" class="back-btn" id="backBtn">← 大項目の選択へ</button>' +
             '<span class="qtitle">' + esc(view.category) + '</span></div>' +
             '<div class="session-result"><div class="big">' + cst.correct + ' <small>/ ' + cst.total + ' 問 正解</small></div>' +
             '<p>回答済み ' + cst.answered + ' 問 ・ 正答率 ' + crate + '%</p>' +
-            (cst.answered < cst.total ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (cst.total - cst.answered) + ' 問あります。カテゴリを選ぶと続きから解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">このカテゴリは全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
+            (cst.answered < cst.total ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (cst.total - cst.answered) + ' 問あります。大項目を選ぶと続きから解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この大項目は全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
             '</div>' + sourceFooter();
           app.innerHTML = chtml;
           document.getElementById("backBtn").addEventListener("click", function () { view.tab = "home"; view.category = null; render(); });
@@ -1352,14 +1571,14 @@
       function renderStats() {
         var p = curProfile();
         var html = '<h2 class="sec">進捗（' + esc(p.name) + '）</h2>' +
-          '<p class="lead">' + esc(curSubject.name) + ' のカテゴリごとの回答状況と正答率です。タップするとそのカテゴリを解けます。他科目の進捗は科目選択画面で確認できます。</p><div class="cat-list" style="margin-top:0">';
+          '<p class="lead">' + esc(curSubject.name) + ' の大項目ごとの回答状況と正答率です。タップするとその大項目を解けます。他科目の進捗は科目選択画面で確認できます。</p><div class="cat-list" style="margin-top:0">';
         CATS.forEach(function (c) {
           var st = categoryStats(c.name);
           if (!st.total) return;
           var cpct = Math.round(st.answered / st.total * 100);
           var crate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
           html += '<button type="button" class="cat-card" data-category="' + esc(c.name) + '">' +
-            '<span class="cbody"><span class="cname" style="font-size:15px">' + esc(c.name) + '</span><br>' +
+            '<span class="cbody"><span class="cname" style="font-size:15px">' + esc((c.no ? c.no + "．" : "") + c.name) + '</span><br>' +
             '<span class="cmeta">' + st.answered + ' / ' + st.total + ' 問' + (st.wrong ? ' ・ 間違い ' + st.wrong + ' 問' : '') + '</span></span>' +
             '<span class="cright"><span class="crate">' + crate + '</span><span class="cprog"> 正答率</span>' +
             '<span class="mini-bar"><i style="width:' + cpct + '%"></i></span></span></button>';
@@ -1426,12 +1645,13 @@
           current: store.current,
           fontSize: store.fontSize || "std",
           subjectKey: store.subjectKey || null,
+          trackKey: store.trackKey || null,
           savedAt: Date.now()
         };
       }
       function payloadCore(p) {
         if (!p) return "";
-        return JSON.stringify({ profiles: p.profiles || [], current: p.current || "", fontSize: p.fontSize || "std", subjectKey: p.subjectKey || null });
+        return JSON.stringify({ profiles: p.profiles || [], current: p.current || "", fontSize: p.fontSize || "std", subjectKey: p.subjectKey || null, trackKey: p.trackKey || null });
       }
       function localHasProgress() {
         for (var i = 0; i < store.profiles.length; i++) {
@@ -1476,6 +1696,7 @@
         store.current = okCurrent ? data.current : store.profiles[0].id;
         if (data.fontSize) store.fontSize = data.fontSize;
         if (data.subjectKey !== undefined) store.subjectKey = data.subjectKey;
+        if (data.trackKey !== undefined) store.trackKey = data.trackKey;
         transient = {};
         try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch (e) {}
         suppressSync = false;
@@ -1757,9 +1978,12 @@
       initAuth();
       if (store.subjectKey && findSubject(store.subjectKey)) {
         selectSubject(store.subjectKey);
-      } else {
+      } else if (trackKey()) {
         view.tab = "subjects";
         renderSubjects();
+      } else {
+        view.tab = "tracks";
+        renderTracks();
       }
     </script>
   </body>
