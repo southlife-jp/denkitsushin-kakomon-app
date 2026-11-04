@@ -81,9 +81,49 @@
       }
       .top-in {
         max-width: 760px; margin: 0 auto; padding: 10px 14px;
-        display: flex; align-items: center; gap: 10px;
+        display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 10px;
       }
-      .top-title { font-weight: 800; font-size: 15px; letter-spacing: .01em; white-space: nowrap; flex-shrink: 0; }
+      .top-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .top-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+      .top-right-row { display: flex; align-items: center; gap: 8px; }
+      .top-title { font-weight: 800; font-size: 15px; letter-spacing: .01em; white-space: nowrap; }
+      /* 資格切替タグ（アプリ名の下・小さく並べる） */
+      .track-tags { display: flex; gap: 6px; }
+      .track-tags button {
+        border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-soft);
+        border-radius: 999px; padding: 2px 14px; min-height: 28px;
+        font-size: 12.5px; font-weight: 800; line-height: 1.4;
+      }
+      .track-tags button.on {
+        background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); color: #fff;
+        border-color: transparent; box-shadow: var(--btn-shadow);
+      }
+      /* 文字サイズ切り替え（ゲスト／アカウント項目の下・小さく） */
+      .head-font { display: flex; align-items: center; gap: 3px; }
+      .head-font .hf-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-right: 1px; }
+      .head-font button {
+        border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+        border-radius: 999px; padding: 1px 9px; min-height: 24px;
+        font-size: 11.5px; font-weight: 700; line-height: 1.5;
+      }
+      .head-font button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+      /* 期間ボタン（資格タグの右横・現在の選択を短く表示） */
+      .period-btn {
+        border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--accent);
+        border-radius: 999px; padding: 2px 12px; min-height: 28px;
+        font-size: 12.5px; font-weight: 800; line-height: 1.4; white-space: nowrap;
+      }
+      .period-btn:active { opacity: .65; }
+      /* 期間を選ぶシートの行 */
+      .period-row {
+        display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+        border: 1.5px solid var(--line); border-radius: 11px; margin-bottom: 9px; width: 100%;
+        background: var(--surface); color: var(--ink); text-align: left; font: inherit;
+      }
+      .period-row.cur { border-color: var(--accent); background: var(--accent-soft); }
+      .period-row .pinfo { flex: 1; min-width: 0; }
+      .period-row .pinfo b { display: block; }
+      .period-row .pinfo span { font-size: 12px; color: var(--ink-soft); }
       .profile-chip {
         margin-left: auto; display: flex; align-items: center; gap: 5px;
         background: none; border: none; border-radius: 8px;
@@ -97,7 +137,7 @@
 
       /* ヘッダーのパンくず（現在地）：アプリ名とゲスト／アカウントの間に表示 */
       .breadcrumb {
-        flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 1px;
+        flex: 1 1 100%; order: 3; min-width: 0; display: flex; align-items: center; gap: 1px;
         overflow: hidden; white-space: nowrap; color: var(--ink-soft);
         font-size: 11.5px; line-height: 1.35;
       }
@@ -118,10 +158,7 @@
       /* 横幅が厳しい幅では、アプリ名（正式名称・省略しない）とゲスト項目を1段目に残し、
          パンくずを2段目へ回して横いっぱいに表示する */
       @media (max-width: 680px) {
-        .top-in { flex-wrap: wrap; row-gap: 2px; }
-        .breadcrumb { order: 4; flex: 1 1 100%; }
-        .period-badge { order: 2; }
-        .profile-chip { order: 3; }
+        .top-in { row-gap: 2px; }
       }
       @media (max-width: 480px) {
         .top-in { gap: 6px; padding: 9px 10px; }
@@ -525,6 +562,37 @@
       }
       .resume-link:active { opacity: .6; }
 
+      /* トップページメニュー（丸フチ枠で囲ったボタン） */
+      .menu-list { display: grid; gap: 12px; margin-top: 16px; }
+      .menu-btn {
+        display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+        background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px;
+        padding: 15px 22px; min-height: 62px; box-shadow: var(--shadow); color: var(--ink);
+        transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      }
+      .menu-btn:active { transform: scale(.99); }
+      .menu-btn .mb-main { flex: 1; min-width: 0; }
+      .menu-btn .mb-label { display: block; font-weight: 800; font-size: 16.5px; line-height: 1.4; }
+      .menu-btn .mb-sub {
+        display: block; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .menu-btn .mb-arrow { flex-shrink: 0; font-size: 20px; color: var(--accent); font-weight: 800; }
+      @media (hover: hover) {
+        .menu-btn:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26, 46, 80, .16); }
+      }
+
+      /* 資格全体の進捗グラフ（科目ごとの正答率バー） */
+      .gstat {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        padding: 12px 15px; box-shadow: var(--shadow);
+      }
+      .gstat .g-head { display: flex; align-items: baseline; gap: 10px; }
+      .gstat .g-name { font-weight: 800; font-size: 15px; flex: 1; min-width: 0; }
+      .gstat .g-rate { font-weight: 800; font-size: 17px; color: var(--accent); flex-shrink: 0; }
+      .gstat .g-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+      .gstat .bar { margin-top: 8px; }
+
       /* 文字サイズ切り替え */
       .font-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
       .font-label { font-size: 13.5px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
@@ -602,14 +670,30 @@
   <body>
     <header class="top">
       <div class="top-in">
-        <div class="top-title">電気通信主任技術者過去問アプリ</div>
+        <div class="top-left">
+          <div class="top-title">電気通信主任技術者過去問アプリ</div>
+          <div class="track-tags" role="group" aria-label="資格の切り替え">
+            <button type="button" data-track-tag="denso" aria-pressed="true">伝送</button>
+            <button type="button" data-track-tag="senro" aria-pressed="false">線路</button>
+            <button type="button" class="period-btn" id="periodBtn" aria-haspopup="dialog">全期間 ▾</button>
+          </div>
+        </div>
+        <div class="top-right">
+          <div class="top-right-row">
+            <button type="button" class="profile-chip" id="profileBtn" aria-label="プロフィールとアカウント">
+              <span class="login-dot" id="loginDot"></span>
+              <span class="pname" id="profileName">ゲスト</span>
+              <span class="pchev">▾</span>
+            </button>
+          </div>
+          <div class="head-font" role="group" aria-label="文字サイズの切り替え">
+            <span class="hf-label">文字</span>
+            <button type="button" data-hfont="small">小</button>
+            <button type="button" data-hfont="std">標準</button>
+            <button type="button" data-hfont="large">大</button>
+          </div>
+        </div>
         <nav class="breadcrumb" id="crumbs" aria-label="現在地"></nav>
-        <span class="period-badge" id="periodBadge" style="display:none"></span>
-        <button type="button" class="profile-chip" id="profileBtn" aria-label="プロフィールとアカウント">
-          <span class="login-dot" id="loginDot"></span>
-          <span class="pname" id="profileName">ゲスト</span>
-          <span class="pchev">▾</span>
-        </button>
       </div>
     </header>
 
@@ -641,6 +725,15 @@
       </div>
     </div>
 
+    <div class="overlay" id="periodOverlay">
+      <div class="sheet">
+        <h3>学習する期間</h3>
+        <p>選んだ期間の問題だけが表示・出題されます（期間は各科目の最も新しい収録年度から数えます）。期間を変えても回答記録は消えません。選択は保存され、次回も引き継がれます。</p>
+        <div id="periodList"></div>
+        <button type="button" class="close-btn" id="closePeriodBtn">閉じる</button>
+      </div>
+    </div>
+
     <div class="overlay" id="syncOverlay">
       <div class="sheet">
         <h3>クラウドの進捗があります</h3>
@@ -663,7 +756,7 @@
       var DATA = null;           // 選択中科目のデータ全体（科目ごとに遅延ロード）
       var QMAP = {};             // id -> {q, session, groupNo}
       var CATS = [];             // 選択中科目のカテゴリ [{name, short}]
-      var view = { tab: "home", mode: "category", sessionId: null, category: null, qIndex: 0, reviewIds: null, reviewPos: 0 };
+      var view = { tab: "home", mode: "category", flow: null, sessionId: null, category: null, qIndex: 0, reviewIds: null, reviewPos: 0 };
       var pendingResume = null;  // 科目データ読み込み後に適用する再開位置
       /* アカウント／クラウド同期の状態（Supabaseが使えない環境では常に未ログイン扱い） */
       var authUser = null;       // ログイン中のユーザー（nullなら未ログイン）
@@ -709,6 +802,15 @@
         return null;
       }
       function trackKey() { return findTrack(store.trackKey) ? store.trackKey : null; }
+      /* 表示・初期値用：未選択のときは伝送交換を既定にする（保存はタグを押したときに行う） */
+      function effTrackKey() { return trackKey() || "denso"; }
+      /* ヘッダーのタグで資格を切り替える：選択を保存（端末＋クラウド）し、その資格のトップメニューへ */
+      function switchTrack(k) {
+        if (!findTrack(k)) return;
+        if (trackKey() !== k) { store.trackKey = k; saveStore(); }
+        view.tab = "top"; view.sessionId = null; view.category = null; view.reviewIds = null;
+        renderTop();
+      }
       function subjectsForTrack(tk) {
         return SUBJECTS.filter(function (s) { return s.tracks.indexOf(tk) >= 0; });
       }
@@ -901,10 +1003,11 @@
          起点になるため、期間を絞っても問題が0件にはならない。
          期間を変えても回答記録は消えず、表示と出題プールだけが変わる。 */
       var PERIODS = [
-        { key: "all", label: "全期間", years: 0 },
-        { key: "y10", label: "直近10年", years: 10 },
-        { key: "y5", label: "直近5年", years: 5 },
-        { key: "y3", label: "直近3年", years: 3 }
+        { key: "all", label: "全期間", sheet: "全期間分", years: 0 },
+        { key: "y10", label: "直近10年", sheet: "10年間分", years: 10 },
+        { key: "y7", label: "直近7年", sheet: "7年間分", years: 7 },
+        { key: "y5", label: "直近5年", sheet: "5年間分", years: 5 },
+        { key: "y3", label: "直近3年", sheet: "3年間分", years: 3 }
       ];
       function periodDef() {
         var k = curProfile().periodKey;
@@ -969,46 +1072,109 @@
         var a = yr(ss[ss.length - 1]), b = yr(ss[0]);
         return a === b ? a : a + "〜" + b;
       }
-      function periodSelectorHtml() {
-        var def = periodDef();
-        var note;
-        if (!def.years) {
-          note = "いまは全期間が対象です。古くて今は使えない問題を外したいときは、直近10年／5年／3年を選ぶと新しい回だけに絞れます。選んでも回答記録は消えません。";
-        } else if (DATA && curSubject && view.tab !== "tracks" && view.tab !== "subjects") {
-          var pst = periodStats();
-          note = "範囲：" + periodRangeText() + " ・ " + pst.sessions + "回 ・ " + pst.questions + "問（" + curSubject.name + "）。この期間の回・問題だけが表示と出題に使われます。回答記録は消えません。";
-        } else {
-          note = "各科目の最も新しい収録年度から" + def.years + "年分だけに絞られます（専門的能力など収録が古い年度で終わる科目は、その科目の最新年度から数えます）。科目を選ぶと、その科目の回数・問題数がここに表示されます。回答記録は消えません。";
+      /* 科目ごとの収録年度（新しい順）。収録データから求めた実績値で、
+         科目データを読み込んでいなくても、期間で絞った進捗を集計するために使う */
+      var SUBJECT_YEARS = {
+        houki: [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        system: [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        setubi_ts: [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        senmon_denso: [2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        senmon_musen: [2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013],
+        senmon_kokan: [2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        senmon_data: [2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        senmon_denryoku: [2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013],
+        senro: [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012],
+        senmon_senro: [2019, 2018, 2017, 2016, 2015, 2014, 2013],
+        senmon_doboku: [2019, 2018, 2017, 2016, 2015, 2014, 2013],
+        senmon_suitei: [2019, 2018, 2017, 2016, 2015, 2014, 2013]
+      };
+      /* 問題ID（[科目-]r8_1-... の形式）から、その問題の試験年度（西暦）を返す */
+      function idSessionYear(id) {
+        var rest = id;
+        for (var i = 0; i < SUBJECTS.length; i++) {
+          var k = SUBJECTS[i].key;
+          if (k !== "houki" && id.indexOf(k + "-") === 0) { rest = id.slice(k.length + 1); break; }
         }
-        var html = '<div class="period-card"><div class="p-head">' +
-          '<span class="p-title">期間で絞る</span>' +
-          '<span class="p-cur">いま：' + esc(def.label) + '</span></div>' +
-          '<div class="period-switch" role="group" aria-label="期間の切り替え">' +
-          PERIODS.map(function (pd) {
-            return '<button type="button" data-period="' + pd.key + '"' + (def.key === pd.key ? ' class="on"' : "") + '>' + pd.label + '</button>';
-          }).join("") +
-          '</div><div class="p-note">' + esc(note) + '</div></div>';
-        return html;
+        var m = /^([a-z]?)(\d+)_/.exec(rest);
+        if (!m) return 0;
+        var n = parseInt(m[2], 10);
+        return m[1] === "r" ? n + 2018 : n + 1988;
+      }
+      /* その科目で、現在の期間に含まれる年度の集合（全期間なら null） */
+      function subjectPeriodYears(key) {
+        var def = periodDef();
+        if (!def.years) return null;
+        var keep = {};
+        (SUBJECT_YEARS[key] || []).slice(0, def.years).forEach(function (y) { keep[y] = 1; });
+        return keep;
+      }
+      /* 保存済み進捗だけから、期間内の科目別回答状況を集計する（データ未ロードでも使える） */
+      function subjectProgressPeriod(key) {
+        var keep = subjectPeriodYears(key);
+        var r = results(), answered = 0, correct = 0;
+        for (var id in r) {
+          if (!Object.prototype.hasOwnProperty.call(r, id)) continue;
+          if (subjectOfId(id) !== key) continue;
+          if (keep && !keep[idSessionYear(id)]) continue;
+          answered++; if (r[id].correct) correct++;
+        }
+        return { answered: answered, correct: correct };
+      }
+      function trackProgressPeriod(tk) {
+        var answered = 0, correct = 0;
+        subjectsForTrack(tk).forEach(function (s) {
+          var pr = subjectProgressPeriod(s.key);
+          answered += pr.answered; correct += pr.correct;
+        });
+        return { answered: answered, correct: correct };
       }
       function rerenderPeriodScreen() {
-        if (view.tab === "tracks") renderTracks();
+        if (view.tab === "top") renderTop();
+        else if (view.tab === "trackStats") renderTrackStats();
         else if (view.tab === "subjects" || !DATA) renderSubjects();
         else render();
       }
-      /* ヘッダーの期間バッジ：絞り込み中は全画面で「直近N年」が分かるようにする */
-      function syncPeriodBadge() {
-        var b = document.getElementById("periodBadge");
-        if (!b) return;
-        var def = periodDef();
-        if (def.years) { b.style.display = ""; b.textContent = def.label + "のみ"; }
-        else b.style.display = "none";
+      /* ヘッダーの期間ボタン：現在の選択（例「直近5年」）を常に表示する */
+      function syncPeriodBtn() {
+        var b = document.getElementById("periodBtn");
+        if (b) b.textContent = periodDef().label + " ▾";
       }
+      /* ---------- 期間を選ぶシート（ヘッダーの期間ボタンから開く） ---------- */
+      var periodOverlay = document.getElementById("periodOverlay");
+      function renderPeriodList() {
+        var list = document.getElementById("periodList");
+        var order = ["y3", "y5", "y7", "y10", "all"];
+        var html = "";
+        order.forEach(function (k) {
+          var pd = null;
+          PERIODS.forEach(function (p) { if (p.key === k) pd = p; });
+          if (!pd) return;
+          var cur = periodDef().key === pd.key;
+          html += '<button type="button" class="period-row' + (cur ? " cur" : "") + '" data-period-opt="' + pd.key + '">' +
+            '<span class="pinfo"><b>' + esc(pd.sheet) + '</b><span>' +
+            (pd.years ? "各科目の最も新しい収録年度から" + pd.years + "年分" : "収録されている全期間") +
+            (cur ? " ・ 選択中" : "") + '</span></span></button>';
+        });
+        list.innerHTML = html;
+        var rows = list.querySelectorAll("[data-period-opt]");
+        for (var i = 0; i < rows.length; i++) {
+          rows[i].addEventListener("click", function () {
+            var k = this.getAttribute("data-period-opt");
+            closePeriodSheet();
+            if (periodDef().key === k) return;
+            setPeriodKey(k);
+            syncPeriodBtn();
+            rerenderPeriodScreen();
+          });
+        }
+      }
+      function openPeriodSheet() { renderPeriodList(); periodOverlay.classList.add("open"); }
+      function closePeriodSheet() { periodOverlay.classList.remove("open"); }
       /* ---------- ヘッダーのパンくず（現在地・タップでその階層へ戻る） ---------- */
       var crumbHideQno = false;
       function crumbGo(level) {
         if (level === "track") {
-          if (trackKey()) { view.tab = "subjects"; renderSubjects(); }
-          else { view.tab = "tracks"; renderTracks(); }
+          view.tab = "top"; renderTop();
         } else if (level === "subject") {
           if (DATA && curSubject) { view.tab = "home"; render(); }
           else if (curSubject) { selectSubject(curSubject.key); }
@@ -1018,19 +1184,24 @@
       function breadcrumbItems() {
         var items = [];
         try {
-          if (view.tab === "tracks") {
-            items.push({ label: "資格を選ぶ", cur: true });
+          if (view.tab === "top") {
+            // トップページではパンくずは出さない
             return items;
           }
-          var tk = trackKey();
-          var trk = tk ? findTrack(tk) : null;
+          var trk = findTrack(effTrackKey());
           if (view.tab === "subjects") {
-            items.push(trk ? { label: trk.short, cur: true } : { label: "資格を選ぶ", cur: true });
+            items.push({ label: trk.short, level: "track" });
+            items.push({ label: "科目を選ぶ", cur: true });
+            return items;
+          }
+          if (view.tab === "trackStats") {
+            items.push({ label: trk.short, level: "track" });
+            items.push({ label: "進捗", cur: true });
             return items;
           }
           if (!DATA) {
             // 科目データ未読み込みの画面では、区分までだけを表示する
-            items.push(trk ? { label: trk.short, cur: true } : { label: "資格を選ぶ", cur: true });
+            items.push({ label: trk.short, cur: true });
             return items;
           }
           if (trk) items.push({ label: trk.short, level: "track" });
@@ -1057,8 +1228,11 @@
       function updateBreadcrumb() {
         var el = document.getElementById("crumbs");
         if (!el) return;
+        syncTrackTags();
+        syncPeriodBtn();
         var items = breadcrumbItems();
-        if (!items.length) { el.innerHTML = ""; return; }
+        if (!items.length) { el.innerHTML = ""; el.style.display = "none"; return; }
+        el.style.display = "";
         el.innerHTML = items.map(function (it, i) {
           var s = (i ? '<span class="cr-sep" aria-hidden="true">›</span>' : "");
           if (it.cur || !it.level) {
@@ -1075,23 +1249,28 @@
         }
       }
 
-      function bindPeriodSelector() {
-        var btns = app.querySelectorAll("[data-period]");
-        for (var i = 0; i < btns.length; i++) {
-          btns[i].addEventListener("click", function () {
-            if (periodDef().key === this.getAttribute("data-period")) return;
-            setPeriodKey(this.getAttribute("data-period"));
-            rerenderPeriodScreen();
-          });
-        }
-      }
-
       /* ---------- 文字サイズ（端末内に保存・全プロフィール共通） ---------- */
       var FONT_SIZES = ["small", "std", "large"];
       var FONT_LABELS = { small: "小", std: "標準", large: "大" };
       function fontSize() { return FONT_LABELS[store.fontSize] ? store.fontSize : "std"; }
-      function applyFont() { document.body.setAttribute("data-font", fontSize()); }
+      function applyFont() { document.body.setAttribute("data-font", fontSize()); syncHeadFont(); }
       function setFontSize(fs) { store.fontSize = fs; saveStore(); applyFont(); }
+      /* ヘッダーの文字サイズボタン（小・標準・大）の選択状態を現在の設定に合わせる */
+      function syncHeadFont() {
+        var btns = document.querySelectorAll("[data-hfont]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].classList.toggle("on", btns[i].getAttribute("data-hfont") === fontSize());
+        }
+      }
+      /* ヘッダーの資格タグ（伝送／線路）の選択状態を現在の資格に合わせる */
+      function syncTrackTags() {
+        var btns = document.querySelectorAll("[data-track-tag]");
+        for (var i = 0; i < btns.length; i++) {
+          var on = btns[i].getAttribute("data-track-tag") === effTrackKey();
+          btns[i].classList.toggle("on", on);
+          btns[i].setAttribute("aria-pressed", on ? "true" : "false");
+        }
+      }
 
       /* ---------- つづきから再開（プロフィール別に端末内保存） ---------- */
       function lastPos() {
@@ -1182,7 +1361,7 @@
       function selectSubject(key) {
         var sub = findSubject(key);
         if (!sub) { view.tab = "subjects"; renderSubjects(); return; }
-        if (curSubject && curSubject.key === key && DATA) { view.tab = "home"; render(); return; }
+        if (curSubject && curSubject.key === key && DATA) { view.tab = "home"; view.flow = null; render(); return; }
         document.getElementById("app").innerHTML =
           '<div class="loading">「' + esc(sub.name) + '」の問題データを読み込んでいます…</div>';
         fetch(sub.file)
@@ -1193,7 +1372,7 @@
             store.subjectKey = key;
             if (!trackKey() && sub.tracks.length === 1) store.trackKey = sub.tracks[0];
             saveStore();
-            view.tab = "home"; view.sessionId = null; view.category = null; view.reviewIds = null; view.qIndex = 0;
+            view.tab = "home"; view.flow = null; view.sessionId = null; view.category = null; view.reviewIds = null; view.qIndex = 0;
             syncProfileHeader();
             if (pendingResume && pendingResume.subjectKey === key && applyResume(pendingResume)) {
               pendingResume = null;
@@ -1217,10 +1396,11 @@
       var app = document.getElementById("app");
 
       function render() {
-        syncPeriodBadge();
+        syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.toggle("in-quiz", view.tab === "quiz" || view.tab === "reviewQuiz");
-        if (view.tab === "tracks") { renderTracks(); return; }
+        if (view.tab === "top") { renderTop(); return; }
+        if (view.tab === "trackStats") { renderTrackStats(); return; }
         if (view.tab === "subjects" || !DATA) { renderSubjects(); return; }
         updateTabs();
         updateWrongBadge();
@@ -1234,7 +1414,7 @@
       }
 
       function updateTabs() {
-        var map = { home: "home", tracks: "home", subjects: "home", quiz: "home", review: "review", reviewQuiz: "review", stats: "stats" };
+        var map = { top: "home", home: "home", subjects: "home", quiz: "home", trackStats: "stats", review: "review", reviewQuiz: "review", stats: "stats" };
         var cur = map[view.tab] || "home";
         var btns = document.querySelectorAll(".tabs button");
         for (var i = 0; i < btns.length; i++) {
@@ -1263,97 +1443,124 @@
           ' 全' + DATA.sessions.length + '回分（' + total + '問）を収録</footer>';
       }
 
-      /* ----- 資格選択画面（最初に伝送交換／線路を選ぶ） ----- */
-      function renderTracks() {
-        syncPeriodBadge();
+      /* ----- トップページ（選択中の資格のメニュー） -----
+         資格の切り替えはヘッダーのタグ（伝送／線路）、期間はヘッダーの期間ボタンで行い、
+         ここには選ばれた資格・期間に対するメニューだけを出す。
+         項目は丸フチ枠で囲ったボタンをこの順番に並べる（丸数字の表記は付けない）。 */
+      function renderTop() {
+        syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.remove("in-quiz");
         updateTabs();
         updateWrongBadge();
-        var html = '<h2 class="sec">資格を選ぶ</h2>' +
-          '<p class="lead">受験する区分を選んでください。</p>';
-        var lpT = lastPos();
-        if (lpT) {
-          html += '<div><button type="button" class="resume-link" id="resumeBtn">つづきから：' + esc(resumeText(lpT)) + ' →</button></div>';
+        var tk = effTrackKey();
+        var trk = findTrack(tk);
+        var pDef = periodDef();
+        var tp = trackProgressPeriod(tk);
+        var tpAll = trackProgress(tk);
+        var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) + '%' : '—';
+        var html = '<h2 class="sec">' + esc(trk.name) + '</h2>' +
+          '<p class="lead">' + esc(trk.desc) + ' ・ 全' + subjectsForTrack(tk).length + '科目' +
+          (pDef.years ? ' ・ 対象は' + esc(pDef.label) : '') + '</p>' +
+          '<div class="menu-list">';
+        var lp = lastPos();
+        if (lp) {
+          html += '<button type="button" class="menu-btn" id="menuResume"><span class="mb-main">' +
+            '<span class="mb-label">前回の続きから始める</span>' +
+            '<span class="mb-sub">' + esc(resumeText(lp)) + '</span></span>' +
+            '<span class="mb-arrow">›</span></button>';
         }
-        html += periodSelectorHtml();
-        TRACKS.forEach(function (tr) {
-          var subs = subjectsForTrack(tr.key);
-          var tp = trackProgress(tr.key);
-          var pct = tp.total ? Math.round(tp.answered / tp.total * 100) : 0;
-          var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) + '%' : '—';
-          var cur = trackKey() === tr.key;
-          html += '<div class="track-card' + (cur ? ' sel' : '') + '" data-track="' + tr.key + '" role="button" tabindex="0" aria-pressed="' + (cur ? 'true' : 'false') + '" aria-label="' + esc(tr.name) + 'を選択">' +
-            '<span class="tname">' + esc(tr.name) + (cur ? ' <span class="scur" style="font-size:12px;font-weight:800;color:var(--accent)">選択中</span>' : '') + '</span>' +
-            '<span class="tdesc">' + esc(tr.desc) + ' ・ 全' + subs.length + '科目</span>' +
-            '<span class="tsubs">' + subs.map(function (s) { return esc(s.name); }).join("、") + '</span>' +
-            '<span class="tprog"><span class="trate">' + rate + '</span>' +
-            '<span class="tprog-label">正答率 ・ 回答済み ' + tp.answered + ' / ' + tp.total + ' 問（' + pct + '%）</span>' +
-            '<span class="mini-bar"><i style="width:' + pct + '%"></i></span></span>' +
-            '<button type="button" class="tgo" data-track-go="' + tr.key + '">この区分の科目を見る →</button></div>';
-        });
-        html += sourceFooter();
+        html += '<button type="button" class="menu-btn" id="menuCategory"><span class="mb-main">' +
+          '<span class="mb-label">カテゴリごとに学習</span>' +
+          '<span class="mb-sub">科目を選んで、分野ごとに集中して解く</span></span>' +
+          '<span class="mb-arrow">›</span></button>';
+        html += '<button type="button" class="menu-btn" id="menuSession"><span class="mb-main">' +
+          '<span class="mb-label">試験回ごとに学習</span>' +
+          '<span class="mb-sub">科目を選んで、1回分を通しで解く</span></span>' +
+          '<span class="mb-arrow">›</span></button>';
+        html += '<button type="button" class="menu-btn" id="menuProgress"><span class="mb-main">' +
+          '<span class="mb-label">現在の進捗状況をグラフ表示</span>' +
+          '<span class="mb-sub">' + (pDef.years
+            ? esc(pDef.label) + ' ・ 回答済み ' + tp.answered + ' 問 ・ 正答率 ' + rate
+            : '回答済み ' + tpAll.answered + ' / ' + tpAll.total + ' 問 ・ 正答率 ' + rate) + '</span></span>' +
+          '<span class="mb-arrow">›</span></button>';
+        html += '</div>' + sourceFooter();
         app.innerHTML = html;
-        bindPeriodSelector();
-        // カードのタップ＝区分の選択だけ（保存して「選択中」表示に切り替え、トップページに留まる）。
-        // 科目一覧へ進むのは「この区分の科目を見る」からだけ。
-        function selectTrack(k) {
-          if (trackKey() === k) return;
-          store.trackKey = k;
-          saveStore();
-          renderTracks();
-        }
-        function goSubjects(k) {
-          if (trackKey() !== k) { store.trackKey = k; saveStore(); }
-          view.tab = "subjects";
-          renderSubjects();
-        }
-        var tcards = app.querySelectorAll("[data-track]");
-        for (var i = 0; i < tcards.length; i++) {
-          tcards[i].addEventListener("click", function () {
-            selectTrack(this.getAttribute("data-track"));
-          });
-          tcards[i].addEventListener("keydown", function (e) {
-            if (e.target !== this) return; // 「科目を見る」ボタン上のキーはボタン側に任せる
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              selectTrack(this.getAttribute("data-track"));
+        if (lp) {
+          document.getElementById("menuResume").addEventListener("click", function () {
+            var p = lastPos(); if (!p) return;
+            if (curSubject && curSubject.key === p.subjectKey && DATA) {
+              if (applyResume(p)) render();
+            } else {
+              pendingResume = p;
+              selectSubject(p.subjectKey);
             }
           });
         }
-        var tgos = app.querySelectorAll("[data-track-go]");
-        for (var gi = 0; gi < tgos.length; gi++) {
-          tgos[gi].addEventListener("click", function (e) {
-            e.stopPropagation();
-            goSubjects(this.getAttribute("data-track-go"));
-          });
-        }
-        var rbT = document.getElementById("resumeBtn");
-        if (rbT) rbT.addEventListener("click", function () {
-          var lp = lastPos(); if (!lp) return;
-          if (curSubject && curSubject.key === lp.subjectKey && DATA) {
-            if (applyResume(lp)) render();
-          } else {
-            pendingResume = lp;
-            selectSubject(lp.subjectKey);
-          }
+        document.getElementById("menuCategory").addEventListener("click", function () {
+          view.flow = "category"; view.tab = "subjects"; renderSubjects();
+        });
+        document.getElementById("menuSession").addEventListener("click", function () {
+          view.flow = "session"; view.tab = "subjects"; renderSubjects();
+        });
+        document.getElementById("menuProgress").addEventListener("click", function () {
+          view.tab = "trackStats"; renderTrackStats();
+        });
+      }
+
+      /* ----- 資格全体の進捗（科目ごとの正答率グラフ） -----
+         バーは科目ごとの正答率。集計は選択中の期間で絞った回答だけを数える */
+      function renderTrackStats() {
+        syncPeriodBtn();
+        updateBreadcrumb();
+        document.body.classList.remove("in-quiz");
+        updateTabs();
+        updateWrongBadge();
+        var tk = effTrackKey();
+        var trk = findTrack(tk);
+        var pDef = periodDef();
+        var tp = trackProgressPeriod(tk);
+        var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) : 0;
+        var html = '<h2 class="sec">進捗状況（' + esc(trk.short) + '）</h2>' +
+          '<p class="lead">' + esc(trk.name) + 'の科目ごとの正答率です。バーは正答率を表します。' +
+          (pDef.years ? 'いまは期間（' + esc(pDef.label) + '）内の回答だけを数えています。' : '全期間の回答を数えています。') +
+          '科目ごとの詳しい進捗（カテゴリ別）は、科目を選んで「進捗」タブで見られます。</p>' +
+          '<div class="summary"><div class="row">' +
+          '<div class="stat"><b>' + tp.answered + '問</b><span>回答済み（' + esc(pDef.label) + '）</span></div>' +
+          '<div class="stat"><b>' + (tp.answered ? rate + '%' : '—') + '</b><span>正答率</span></div>' +
+          '<div class="stat"><b>' + esc(pDef.label) + '</b><span>対象期間</span></div>' +
+          '</div><div class="bar"><i style="width:' + (tp.answered ? rate : 0) + '%"></i></div></div>' +
+          '<div class="list">';
+        subjectsForTrack(tk).forEach(function (s) {
+          var pr = subjectProgressPeriod(s.key);
+          var srate = pr.answered ? Math.round(pr.correct / pr.answered * 100) : 0;
+          html += '<div class="gstat"><div class="g-head">' +
+            '<span class="g-name">' + esc(s.name) + '</span>' +
+            '<span class="g-rate">' + (pr.answered ? srate + '%' : '—') + '</span></div>' +
+            '<div class="bar"><i style="width:' + (pr.answered ? srate : 0) + '%"></i></div>' +
+            '<div class="g-meta">正答率 ・ 回答済み ' + pr.answered + ' 問（' + esc(pDef.label) + '）' + (pr.answered ? '' : ' ・ 未着手') + '</div></div>';
+        });
+        html += '</div>' +
+          '<div style="margin-top:16px"><button type="button" class="back-btn" id="trackStatsBack">← トップへ戻る</button></div>' +
+          sourceFooter();
+        app.innerHTML = html;
+        document.getElementById("trackStatsBack").addEventListener("click", function () {
+          view.tab = "top"; renderTop();
         });
       }
 
       /* ----- 科目選択画面（選んだ区分の科目だけを表示） ----- */
       function renderSubjects() {
-        if (!trackKey()) { renderTracks(); return; }
-        syncPeriodBadge();
+        syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.remove("in-quiz");
         updateTabs();
         updateWrongBadge();
-        var tk = trackKey();
+        var tk = effTrackKey();
         var trk = findTrack(tk);
-        var html = '<h2 class="sec">科目を選ぶ（' + esc(trk.short) + '）</h2>' +
-          '<p class="lead">' + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>' +
-          '<div class="change-track-row"><button type="button" class="back-btn" id="changeTrackBtn">← 資格（伝送交換／線路）を変える</button></div>';
-        html += periodSelectorHtml();
+        var flowTitle = view.flow === "category" ? "カテゴリごとに学習" : (view.flow === "session" ? "試験回ごとに学習" : null);
+        var html = '<h2 class="sec">' + (flowTitle ? esc(flowTitle) + '（' + esc(trk.short) + '）' : '科目を選ぶ（' + esc(trk.short) + '）') + '</h2>' +
+          '<p class="lead">' + (flowTitle ? '科目を選ぶと、その科目の' + (view.flow === "category" ? "カテゴリ一覧" : "試験回一覧") + 'が開きます。' : '') + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>';
         var trackSubs = subjectsForTrack(tk);
         var sections = [
           { title: "共通科目", list: trackSubs.filter(function (s) { return s.group === "共通"; }) },
@@ -1380,15 +1587,13 @@
         });
         html += sourceFooter();
         app.innerHTML = html;
-        bindPeriodSelector();
         var cards = app.querySelectorAll("[data-subject]");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () {
+            if (view.flow) view.mode = view.flow;
             selectSubject(this.getAttribute("data-subject"));
           });
         }
-        var ctb = document.getElementById("changeTrackBtn");
-        if (ctb) ctb.addEventListener("click", function () { view.tab = "tracks"; renderTracks(); });
       }
 
       /* ----- ホーム：回の一覧 ----- */
@@ -1411,19 +1616,11 @@
         var html = '<div class="subject-bar"><span><span class="sb-name">' + esc(curSubject.name) + '</span>' +
           '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span>' +
           '<button type="button" id="changeSubjectBtn">科目を変える</button></div>';
-        html += periodSelectorHtml();
         html += '<div class="summary"><div class="row">' +
           '<div class="stat"><b>' + totalQ + '問</b><span>' + (pDef.years ? '解ける問題（' + pDef.label + ' ・ ' + pStats.sessions + '回）' : '収録問題（全' + DATA.sessions.length + '回）') + '</span></div>' +
           '<div class="stat"><b>' + pct + '%</b><span>回答済み ' + ansU + ' / ' + totalU + ' 単位</span></div>' +
           '<div class="stat"><b>' + (ansU ? rate + '%' : '—') + '</b><span>正答率</span></div>' +
           '</div><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
-
-        html += '<div class="font-row"><span class="font-label">文字サイズ</span>' +
-          '<span class="font-switch" role="group" aria-label="文字サイズの切り替え">' +
-          FONT_SIZES.map(function (f) {
-            return '<button type="button" data-font-size="' + f + '"' + (fontSize() === f ? ' class="on"' : "") + '>' + FONT_LABELS[f] + '</button>';
-          }).join("") +
-          '</span></div>';
 
         html += '<div class="mode-switch" role="group" aria-label="解き方の切り替え">' +
           '<button type="button" data-mode="session"' + (view.mode === "session" ? ' class="on"' : "") + '>📝 試験回で解く<small>1回分を通しで解く</small></button>' +
@@ -1485,7 +1682,6 @@
         }
         html += sourceFooter();
         app.innerHTML = html;
-        bindPeriodSelector();
         document.getElementById("changeSubjectBtn").addEventListener("click", function () {
           view.tab = "subjects"; renderSubjects();
         });
@@ -1493,14 +1689,6 @@
         for (var m = 0; m < modes.length; m++) {
           modes[m].addEventListener("click", function () {
             view.mode = this.getAttribute("data-mode");
-            render();
-          });
-        }
-        var fbtns = app.querySelectorAll("[data-font-size]");
-        for (var fi = 0; fi < fbtns.length; fi++) {
-          fbtns[fi].addEventListener("click", function () {
-            setFontSize(this.getAttribute("data-font-size"));
-            view._keepScroll = true;
             render();
           });
         }
@@ -1854,7 +2042,6 @@
         var rDef = periodDef();
         var html = '<h2 class="sec">復習（間違えた問題）</h2>' +
           '<p class="lead">間違えた問題は ' + ids.length + ' 問あります。正解すると、この一覧から消えます。</p>' +
-          periodSelectorHtml() +
           (rDef.years ? '<p class="lead" style="margin-top:10px">いまは期間（' + rDef.label + ' ・ ' + periodRangeText() + '）内の間違いだけを表示しています。期間外の間違いは、全期間に戻すと表示されます（記録は消えていません）。</p>' : '');
         if (!ids.length) {
           html += '<div class="empty">間違えた問題はありません。<br>問題を解くと、間違えたものがここに集まります。</div>';
@@ -1870,7 +2057,6 @@
         }
         html += sourceFooter();
         app.innerHTML = html;
-        bindPeriodSelector();
         var start = document.getElementById("startReviewBtn");
         if (start) start.addEventListener("click", function () {
           view.reviewIds = wrongIds(); view.qIndex = 0; view.tab = "reviewQuiz"; render();
@@ -1891,7 +2077,6 @@
         var sDef = periodDef();
         var html = '<h2 class="sec">進捗（' + esc(p.name) + '）</h2>' +
           '<p class="lead">' + esc(curSubject.name) + ' のカテゴリごとの回答状況と正答率です。タップするとそのカテゴリを解けます。他科目の進捗は科目選択画面で確認できます。</p>' +
-          periodSelectorHtml() +
           (sDef.years ? '<p class="lead" style="margin-top:10px">下の集計は期間（' + sDef.label + ' ・ ' + periodRangeText() + '）内の問題だけを数えています。</p>' : '') +
           '<div class="cat-list" style="margin-top:0">';
         CATS.forEach(function (c) {
@@ -1922,7 +2107,6 @@
           '<button type="button" class="danger-btn" id="resetBtn">このプロフィールの進捗をすべて消す</button>' +
           sourceFooter();
         app.innerHTML = html;
-        bindPeriodSelector();
         var cards = app.querySelectorAll(".session-card");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () { startSession(this.getAttribute("data-session")); });
@@ -2029,8 +2213,8 @@
           curSubject = null; DATA = null;
           selectSubject(store.subjectKey);
         } else {
-          view.tab = "subjects";
-          renderSubjects();
+          view.tab = "top";
+          render();
         }
       }
       /* ログイン直後：クラウドと端末の進捗を突き合わせる */
@@ -2245,7 +2429,7 @@
             store.current = this.getAttribute("data-prof");
             transient = {};
             saveStore(); syncProfileHeader(); closeProfiles();
-            view.tab = "home"; view.sessionId = null; view.category = null;
+            view.tab = "top"; view.sessionId = null; view.category = null;
             render();
           });
         }
@@ -2272,7 +2456,7 @@
         input.value = "";
         transient = {};
         saveStore(); syncProfileHeader(); closeProfiles();
-        view.tab = "home"; view.sessionId = null; view.category = null;
+        view.tab = "top"; view.sessionId = null; view.category = null;
         render();
       });
 
@@ -2280,19 +2464,35 @@
       var tabBtns = document.querySelectorAll(".tabs button");
       for (var t = 0; t < tabBtns.length; t++) {
         tabBtns[t].addEventListener("click", function () {
-          view.tab = this.getAttribute("data-tab");
+          var dt = this.getAttribute("data-tab");
+          view.tab = dt === "home" ? "top" : dt;
           render();
         });
       }
 
-      /* ---------- 起動：毎回トップメニュー（資格を選ぶ）から始める ----------
-         前回の科目・問題位置への自動復帰はしない。再開はトップ画面の
-         「つづきから」リンクからだけ行える（進捗・回答記録は従来どおり保存される）。 */
+      /* ---------- ヘッダーのボタン（資格タグ・期間・文字サイズ） ---------- */
+      var tagBtns = document.querySelectorAll("[data-track-tag]");
+      for (var tg = 0; tg < tagBtns.length; tg++) {
+        tagBtns[tg].addEventListener("click", function () { switchTrack(this.getAttribute("data-track-tag")); });
+      }
+      var hfBtns = document.querySelectorAll("[data-hfont]");
+      for (var hf = 0; hf < hfBtns.length; hf++) {
+        hfBtns[hf].addEventListener("click", function () { setFontSize(this.getAttribute("data-hfont")); });
+      }
+      document.getElementById("periodBtn").addEventListener("click", openPeriodSheet);
+      document.getElementById("closePeriodBtn").addEventListener("click", closePeriodSheet);
+      periodOverlay.addEventListener("click", function (e) { if (e.target === periodOverlay) closePeriodSheet(); });
+      syncPeriodBtn();
+
+      /* ---------- 起動：毎回トップページ（選択中の資格のメニュー）から始める ----------
+         前回の科目・問題位置への自動復帰はしない。再開はトップページの
+         「前回の続きから始める」からだけ行える（進捗・回答記録は従来どおり保存される）。
+         資格（trackKey）と期間（periodKey）は、保存済みの前回の選択を引き継ぐ。 */
       applyFont();
       syncProfileHeader();
       initAuth();
-      view.tab = "tracks";
-      renderTracks();
+      view.tab = "top";
+      renderTop();
     </script>
   </body>
 </html>
