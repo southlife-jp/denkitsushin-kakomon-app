@@ -70,8 +70,8 @@
         line-height: 1.75;
       }
       button { font: inherit; cursor: pointer; }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 0 14px 90px; }
-      body.in-quiz .wrap { padding-bottom: 215px; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 0 14px 28px; }
+      body.in-quiz .wrap { padding-bottom: 130px; }
 
       /* ヘッダー */
       header.top {
@@ -86,7 +86,6 @@
       .top-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
       .top-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
       .top-right-row { display: flex; align-items: center; gap: 8px; }
-      .top-title { font-weight: 800; font-size: 15px; letter-spacing: .01em; white-space: nowrap; }
       /* 資格切替タグ（アプリ名の下・小さく並べる） */
       .track-tags { display: flex; gap: 6px; }
       .track-tags button {
@@ -171,30 +170,9 @@
       }
       @media (max-width: 480px) {
         .top-in { gap: 6px; padding: 9px 10px; }
-        .top-title { font-size: 13.5px; }
         .profile-chip { max-width: 32vw; }
         .breadcrumb { font-size: 11px; }
         .breadcrumb button.cr, .breadcrumb span.cr { padding-left: 2px; padding-right: 2px; }
-        .period-badge { font-size: 10.5px; padding: 2px 7px; }
-      }
-
-      /* タブ */
-      nav.tabs {
-        position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-        background: var(--surface); border-top: 1px solid var(--line);
-        padding-bottom: env(safe-area-inset-bottom);
-      }
-      .tabs-in { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; }
-      .tabs button {
-        background: none; border: none; padding: 10px 4px 12px;
-        color: var(--ink-soft); font-size: 13px; font-weight: 700;
-        display: flex; flex-direction: column; align-items: center; gap: 2px;
-      }
-      .tabs button .tic { font-size: 19px; line-height: 1; }
-      .tabs button.on { color: var(--accent); }
-      .tabs button .badge {
-        background: var(--ng); color: #fff; border-radius: 999px;
-        font-size: 11px; padding: 0 6px; line-height: 1.5; margin-left: 4px;
       }
 
       h2.sec { font-size: 20px; margin: 22px 0 6px; line-height: 1.4; }
@@ -208,7 +186,7 @@
       .summary .row { display: flex; gap: 18px; flex-wrap: wrap; }
       .summary .stat b { font-size: 22px; display: block; line-height: 1.2; }
       .summary .stat span { font-size: 12px; color: var(--ink-soft); }
-      .bar { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+      .bar { display: block; height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
       .bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
 
       /* 回リスト */
@@ -229,38 +207,7 @@
       .mini-bar { width: 74px; height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-top: 4px; margin-left: auto; }
       .mini-bar i { display: block; height: 100%; background: var(--accent); }
 
-      /* 対象期間（直近何年分に絞る） */
-      .period-card {
-        background: var(--surface); border: 1.5px solid var(--accent); border-radius: 12px;
-        padding: 12px 14px 13px; box-shadow: var(--shadow); margin-top: 14px;
-      }
-      .period-card .p-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-      .period-card .p-title { font-weight: 800; font-size: 15px; }
-      .period-card .p-cur { font-weight: 800; font-size: 13px; color: var(--accent); }
-      .period-card .p-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; line-height: 1.65; }
-      .period-switch {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
-        background: var(--surface2); border-radius: 10px; padding: 4px; margin-top: 9px;
-      }
-      .period-switch button {
-        border: none; background: none; border-radius: 8px; padding: 10px 2px; min-height: 44px;
-        font-weight: 800; font-size: 13.5px; color: var(--ink-soft); line-height: 1.3;
-        transition: background .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
-      }
-      .period-switch button:active { transform: scale(.97); }
-      .period-switch button.on {
-        background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); color: #fff;
-        box-shadow: var(--btn-shadow);
-      }
-      @media (max-width: 380px) { .period-switch button { font-size: 12.5px; } }
-
-      .period-switch button, .track-card, .cat-card, .session-card { scroll-margin-bottom: 96px; }
-
-      /* ヘッダーの対象期間バッジ（絞り込み中は常に表示） */
-      .period-badge {
-        background: var(--accent); color: var(--accent-ink); border-radius: 999px;
-        font-size: 11.5px; font-weight: 800; padding: 3px 9px; white-space: nowrap; flex-shrink: 0;
-      }
+      .cat-card, .session-card { scroll-margin-bottom: 24px; }
 
       /* カテゴリ一覧 */
       .cat-list { display: grid; gap: 10px; margin-top: 12px; }
@@ -288,10 +235,6 @@
 
       /* クイズ */
       .quiz-head { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-      .back-btn {
-        background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-        padding: 9px 16px; min-height: 42px; font-weight: 700; font-size: 14px; color: var(--ink);
-      }
       .quiz-head .qtitle { font-weight: 800; font-size: 16px; }
       .quiz-head .qcount { margin-left: auto; font-size: 13px; color: var(--ink-soft); font-weight: 700; }
       .qnav { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 4px; }
@@ -420,21 +363,19 @@
 
       /* カードと主要ボタンのホバー反応（マウス環境のみ）＋選択肢のホバー */
       @media (hover: hover) {
-        .cat-card:hover, .session-card:hover, .track-card:hover, .wrong-item:hover {
+        .cat-card:hover, .session-card:hover, .wrong-item:hover {
           transform: translateY(-2px); border-color: var(--accent);
           box-shadow: 0 8px 20px rgba(26, 46, 80, .16);
         }
         .check-btn:hover, .primary-btn:hover,
         .actionbar .ab-main:hover,
-        .account-card .ac-actions button:hover, .sheet .ac-main-btn:hover, .new-prof button:hover {
+        .sheet .ac-main-btn:hover, .new-prof button:hover {
           filter: brightness(1.07);
         }
         .opt:not(:disabled):hover { border-color: var(--accent); }
-        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
       }
       @media (prefers-reduced-motion: reduce) {
-        .cat-card, .session-card, .track-card, .wrong-item,
-        .period-switch button, .font-switch button,
+        .cat-card, .session-card, .wrong-item,
         .check-btn, .primary-btn, .actionbar .ab-main {
           transition: none;
         }
@@ -506,31 +447,6 @@
       .subj-group-title { font-size: 15px; font-weight: 800; margin: 22px 0 2px; color: var(--ink-soft); }
       .subj-card .scur { font-size: 11px; font-weight: 800; color: var(--accent); }
 
-      /* 資格（区分）選択カード */
-      .track-card {
-        display: block; width: 100%; text-align: left; margin-top: 12px;
-        background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
-        padding: 18px 16px; box-shadow: var(--shadow); color: var(--ink);
-        transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-      }
-      .track-card:active { transform: scale(.99); }
-      .track-card.sel { border-color: var(--accent); border-width: 2px; }
-      .track-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-      .track-card .tname { display: block; font-weight: 800; font-size: 20px; line-height: 1.4; }
-      .track-card .tdesc { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
-      .track-card .tsubs { display: block; font-size: 13px; line-height: 1.8; margin-top: 9px; }
-      .track-card .tprog { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-      .track-card .tprog .trate { font-weight: 800; font-size: 16px; color: var(--accent); }
-      .track-card .tprog .tprog-label { font-size: 11.5px; color: var(--ink-soft); }
-      .track-card .tprog .mini-bar { margin-left: auto; }
-      .track-card .tgo {
-        display: inline-block; margin-top: 8px; padding: 8px 2px; min-height: 40px;
-        background: none; border: none; font: inherit;
-        font-weight: 800; color: var(--accent); font-size: 14.5px;
-      }
-      .track-card .tgo:active { opacity: .6; }
-      .change-track-row { margin-top: 12px; }
-
       /* 大項目カードの補足（中項目・小項目）と収録なし表示 */
       .cat-card .csub { display: block; font-size: 12px; color: var(--ink-soft); margin-top: 5px; line-height: 1.65; }
       .cat-card.disabled { opacity: .72; cursor: default; }
@@ -540,14 +456,6 @@
         margin-top: 14px; border: 1.5px dashed var(--warn); color: var(--warn);
         border-radius: 10px; padding: 10px 13px; font-size: 14px; font-weight: 700; line-height: 1.7;
       }
-
-      /* つづきから再開（控えめな1行テキストリンク） */
-      .resume-link {
-        display: inline-block; background: none; border: none; padding: 4px 2px;
-        font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px;
-        max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      }
-      .resume-link:active { opacity: .6; }
 
       /* トップページメニュー（丸フチ枠で囲ったボタン） */
       .menu-list { display: grid; gap: 12px; margin-top: 16px; }
@@ -569,37 +477,25 @@
         .menu-btn:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26, 46, 80, .16); }
       }
 
-      /* 資格全体の進捗グラフ（科目ごとの正答率バー） */
+      /* 資格全体の進捗グラフ（科目ごとの正答率バー・タップで科目の詳しい進捗へ） */
       .gstat {
+        display: block; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
         background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
         padding: 12px 15px; box-shadow: var(--shadow);
       }
+      .gstat:active { transform: scale(.99); }
       .gstat .g-head { display: flex; align-items: baseline; gap: 10px; }
       .gstat .g-name { font-weight: 800; font-size: 15px; flex: 1; min-width: 0; }
       .gstat .g-rate { font-weight: 800; font-size: 17px; color: var(--accent); flex-shrink: 0; }
-      .gstat .g-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+      .gstat .g-meta { display: block; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
       .gstat .bar { margin-top: 8px; }
 
-      /* 文字サイズ切り替え */
-      .font-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-      .font-label { font-size: 13.5px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
-      .font-switch { display: flex; gap: 4px; background: var(--surface2); border-radius: 10px; padding: 4px; }
-      .font-switch button {
-        border: none; background: none; border-radius: 7px; padding: 8px 18px;
-        font-weight: 800; font-size: 14px; color: var(--ink-soft); min-height: 40px;
-        transition: background .15s ease, color .15s ease, box-shadow .15s ease;
-      }
-      .font-switch button.on {
-        background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); color: #fff;
-        box-shadow: var(--btn-shadow);
-      }
-
-      /* クイズ画面下の固定アクションバー（タブバーのすぐ上・親指の範囲） */
+      /* クイズ画面下の固定アクションバー（画面の一番下・親指の範囲） */
       .actionbar {
         position: fixed; left: 0; right: 0; z-index: 19;
-        bottom: calc(66px + env(safe-area-inset-bottom));
+        bottom: 0;
         background: var(--surface); border-top: 1px solid var(--line);
-        padding: 10px 14px; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
+        padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.07);
       }
       .actionbar-in { max-width: 760px; margin: 0 auto; display: flex; gap: 12px; }
       .actionbar .ab-prev {
@@ -617,23 +513,13 @@
       .actionbar .ab-main:disabled, .actionbar .ab-prev:disabled { opacity: .35; }
 
       /* アカウント（ログイン・クラウド同期） */
-      .account-card {
-        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-        padding: 14px 16px; box-shadow: var(--shadow); margin-top: 14px;
-      }
-      .account-card .ac-head { display: flex; align-items: center; gap: 10px; }
-      .account-card .ac-title { font-weight: 800; font-size: 16px; }
-      .account-card .ac-mail { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .account-card .ac-note { font-size: 13px; color: var(--ink-soft); margin-top: 6px; line-height: 1.7; }
-      .account-card .ac-status { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
-      .account-card .ac-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-      .account-card .ac-actions button, .sheet .ac-main-btn {
+      .sheet .ac-main-btn {
         background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); color: #fff; border: none; border-radius: 12px;
         padding: 11px 16px; min-height: 46px; font-weight: 800; font-size: 14.5px;
         box-shadow: var(--btn-shadow); transition: transform .12s ease, filter .15s ease;
       }
-      .account-card .ac-actions button:active, .sheet .ac-main-btn:active { transform: scale(.98); }
-      .account-card .ac-actions button.sub, .sheet .ac-sub-btn {
+      .sheet .ac-main-btn:active { transform: scale(.98); }
+      .sheet .ac-sub-btn {
         background: var(--surface2); color: var(--ink); border: 1.5px solid var(--line);
         border-radius: 10px; padding: 10px 14px; min-height: 46px; font-weight: 700; font-size: 14px;
       }
@@ -658,7 +544,6 @@
     <header class="top">
       <div class="top-in">
         <div class="top-left">
-          <div class="top-title">電気通信主任技術者過去問アプリ</div>
           <div class="track-tags" role="group" aria-label="資格の切り替え">
             <button type="button" data-track-tag="denso" aria-pressed="true">伝送</button>
             <button type="button" data-track-tag="senro" aria-pressed="false">線路</button>
@@ -687,14 +572,6 @@
     <main class="wrap" id="app">
       <div class="loading" id="loading">問題データを読み込んでいます…</div>
     </main>
-
-    <nav class="tabs">
-      <div class="tabs-in">
-        <button type="button" data-tab="home" class="on"><span class="tic">📚</span>問題</button>
-        <button type="button" data-tab="review"><span class="tic">🔁</span><span>復習<span class="badge" id="wrongBadge" style="display:none"></span></span></button>
-        <button type="button" data-tab="stats"><span class="tic">📊</span>進捗</button>
-      </div>
-    </nav>
 
     <div class="overlay" id="profileOverlay">
       <div class="sheet">
@@ -745,6 +622,7 @@
       var CATS = [];             // 選択中科目のカテゴリ [{name, short}]
       var view = { tab: "home", mode: "category", flow: null, sessionId: null, category: null, qIndex: 0, reviewIds: null, reviewPos: 0 };
       var pendingResume = null;  // 科目データ読み込み後に適用する再開位置
+      var pendingTab = null;     // 科目データ読み込み後に開く画面（"review"＝復習一覧／"stats"＝科目の詳しい進捗）
       /* アカウント／クラウド同期の状態（Supabaseが使えない環境では常に未ログイン扱い） */
       var authUser = null;       // ログイン中のユーザー（nullなら未ログイン）
       var sbClient = null;       // Supabaseクライアント
@@ -1248,13 +1126,15 @@
         if (view.tab === "home") return "subjects";
         if (view.tab === "quiz") return "home";
         if (view.tab === "reviewQuiz") return "review";
-        if (view.tab === "review" || view.tab === "stats") return DATA ? "home" : "top";
+        if (view.tab === "review") return "top";
+        if (view.tab === "stats") return "trackStats";
         return "top";
       }
       function goBackOne() {
         var t = backTarget();
         if (!t) return;
         if (t === "top") { view.tab = "top"; renderTop(); return; }
+        if (t === "trackStats") { view.tab = "trackStats"; renderTrackStats(); return; }
         if (t === "subjects") {
           // 科目一覧は、いまの科目で使っている学習方法（カテゴリ／試験回）の入口として開く
           view.flow = view.mode; view.tab = "subjects"; renderSubjects(); return;
@@ -1399,7 +1279,9 @@
       function selectSubject(key) {
         var sub = findSubject(key);
         if (!sub) { view.tab = "subjects"; renderSubjects(); return; }
-        if (curSubject && curSubject.key === key && DATA) { view.tab = "home"; view.flow = null; render(); return; }
+        if (curSubject && curSubject.key === key && DATA) {
+          view.tab = pendingTab || "home"; pendingTab = null; view.flow = null; render(); return;
+        }
         document.getElementById("app").innerHTML =
           '<div class="loading">「' + esc(sub.name) + '」の問題データを読み込んでいます…</div>';
         fetch(sub.file)
@@ -1418,6 +1300,7 @@
               return;
             }
             pendingResume = null;
+            if (pendingTab) { view.tab = pendingTab; pendingTab = null; }
             render();
           })
           .catch(function () {
@@ -1436,8 +1319,6 @@
         if (view.tab === "top") { renderTop(); return; }
         if (view.tab === "trackStats") { renderTrackStats(); return; }
         if (view.tab === "subjects" || !DATA) { renderSubjects(); return; }
-        updateTabs();
-        updateWrongBadge();
         if (view.tab === "quiz") renderQuiz();
         else if (view.tab === "review") renderReviewList();
         else if (view.tab === "reviewQuiz") renderQuiz();
@@ -1447,20 +1328,29 @@
         view._keepScroll = false;
       }
 
-      function updateTabs() {
-        var map = { top: "home", home: "home", subjects: "home", quiz: "home", trackStats: "stats", review: "review", reviewQuiz: "review", stats: "stats" };
-        var cur = map[view.tab] || "home";
-        var btns = document.querySelectorAll(".tabs button");
-        for (var i = 0; i < btns.length; i++) {
-          btns[i].classList.toggle("on", btns[i].getAttribute("data-tab") === cur);
+      /* 指定科目について、保存済み記録だけから数えた間違い数（科目データ未ロードでも使える） */
+      function wrongCountForSubject(key) {
+        var keep = subjectPeriodYears(key);
+        var r = results(), n = 0;
+        for (var id in r) {
+          if (!Object.prototype.hasOwnProperty.call(r, id)) continue;
+          if (r[id].correct) continue;
+          if (subjectOfId(id) !== key) continue;
+          if (keep && !keep[idSessionYear(id)]) continue;
+          n++;
         }
+        return n;
       }
-      function updateWrongBadge() {
-        var b = document.getElementById("wrongBadge");
-        if (!DATA) { b.style.display = "none"; return; }
-        var n = wrongIds().length;
-        b.style.display = n > 0 ? "" : "none";
-        b.textContent = n;
+      /* 復習の入口はトップメニューに一本化する：対象科目のデータを読み込んでから復習一覧を開く */
+      function goReview() {
+        if (DATA && curSubject) { view.tab = "review"; render(); return; }
+        var key = (store.subjectKey && findSubject(store.subjectKey)) ? store.subjectKey : null;
+        if (!key) {
+          var lp = lastPos();
+          if (lp && findSubject(lp.subjectKey)) key = lp.subjectKey;
+        }
+        if (key) { pendingTab = "review"; selectSubject(key); return; }
+        view.flow = "review"; view.tab = "subjects"; renderSubjects();
       }
       function sourceFooter() {
         var base = '出典：電気通信国家試験センター公開の試験問題・正答<br>';
@@ -1485,14 +1375,18 @@
         syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.remove("in-quiz");
-        updateTabs();
-        updateWrongBadge();
         var tk = effTrackKey();
         var trk = findTrack(tk);
         var pDef = periodDef();
         var tp = trackProgressPeriod(tk);
         var tpAll = trackProgress(tk);
         var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) + '%' : '—';
+        var revKey = (DATA && curSubject) ? curSubject.key : ((store.subjectKey && findSubject(store.subjectKey)) ? store.subjectKey : null);
+        var revSub = '間違えた問題を解き直す';
+        if (revKey) {
+          var revN = (DATA && curSubject && curSubject.key === revKey) ? wrongIds().length : wrongCountForSubject(revKey);
+          revSub = findSubject(revKey).name + ' ・ 間違えた問題 ' + revN + '問';
+        }
         var html = '<h2 class="sec">' + esc(trk.name) + '</h2>' +
           '<p class="lead">' + esc(trk.desc) + ' ・ 全' + subjectsForTrack(tk).length + '科目' +
           (pDef.years ? ' ・ 対象は' + esc(pDef.label) : '') + '</p>' +
@@ -1511,6 +1405,10 @@
         html += '<button type="button" class="menu-btn" id="menuSession"><span class="mb-main">' +
           '<span class="mb-label">試験回ごとに学習</span>' +
           '<span class="mb-sub">科目を選んで、1回分を通しで解く</span></span>' +
+          '<span class="mb-arrow">›</span></button>';
+        html += '<button type="button" class="menu-btn" id="menuReview"><span class="mb-main">' +
+          '<span class="mb-label">復習（間違えた問題）</span>' +
+          '<span class="mb-sub">' + esc(revSub) + '</span></span>' +
           '<span class="mb-arrow">›</span></button>';
         html += '<button type="button" class="menu-btn" id="menuProgress"><span class="mb-main">' +
           '<span class="mb-label">現在の進捗状況をグラフ表示</span>' +
@@ -1537,6 +1435,7 @@
         document.getElementById("menuSession").addEventListener("click", function () {
           view.flow = "session"; view.tab = "subjects"; renderSubjects();
         });
+        document.getElementById("menuReview").addEventListener("click", goReview);
         document.getElementById("menuProgress").addEventListener("click", function () {
           view.tab = "trackStats"; renderTrackStats();
         });
@@ -1548,8 +1447,6 @@
         syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.remove("in-quiz");
-        updateTabs();
-        updateWrongBadge();
         var tk = effTrackKey();
         var trk = findTrack(tk);
         var pDef = periodDef();
@@ -1558,7 +1455,7 @@
         var html = '<h2 class="sec">進捗状況（' + esc(trk.short) + '）</h2>' +
           '<p class="lead">' + esc(trk.name) + 'の科目ごとの正答率です。バーは正答率を表します。' +
           (pDef.years ? 'いまは期間（' + esc(pDef.label) + '）内の回答だけを数えています。' : '全期間の回答を数えています。') +
-          '科目ごとの詳しい進捗（カテゴリ別）は、科目を選んで「進捗」タブで見られます。</p>' +
+          '科目をタップすると、その科目の詳しい進捗（カテゴリ別・回別）が見られます。</p>' +
           '<div class="summary"><div class="row">' +
           '<div class="stat"><b>' + tp.answered + '問</b><span>回答済み（' + esc(pDef.label) + '）</span></div>' +
           '<div class="stat"><b>' + (tp.answered ? rate + '%' : '—') + '</b><span>正答率</span></div>' +
@@ -1568,14 +1465,22 @@
         subjectsForTrack(tk).forEach(function (s) {
           var pr = subjectProgressPeriod(s.key);
           var srate = pr.answered ? Math.round(pr.correct / pr.answered * 100) : 0;
-          html += '<div class="gstat"><div class="g-head">' +
+          html += '<button type="button" class="gstat" data-stat-subject="' + s.key + '"><span class="g-head">' +
             '<span class="g-name">' + esc(s.name) + '</span>' +
-            '<span class="g-rate">' + (pr.answered ? srate + '%' : '—') + '</span></div>' +
-            '<div class="bar"><i style="width:' + (pr.answered ? srate : 0) + '%"></i></div>' +
-            '<div class="g-meta">正答率 ・ 回答済み ' + pr.answered + ' 問（' + esc(pDef.label) + '）' + (pr.answered ? '' : ' ・ 未着手') + '</div></div>';
+            '<span class="g-rate">' + (pr.answered ? srate + '%' : '—') + '</span></span>' +
+            '<span class="bar"><i style="width:' + (pr.answered ? srate : 0) + '%"></i></span>' +
+            '<span class="g-meta">正答率 ・ 回答済み ' + pr.answered + ' 問（' + esc(pDef.label) + '）' + (pr.answered ? '' : ' ・ 未着手') + ' ・ タップで詳しい進捗</span></button>';
         });
         html += '</div>' + sourceFooter();
         app.innerHTML = html;
+        var gcards = app.querySelectorAll("[data-stat-subject]");
+        for (var gi = 0; gi < gcards.length; gi++) {
+          gcards[gi].addEventListener("click", function () {
+            var k = this.getAttribute("data-stat-subject");
+            if (DATA && curSubject && curSubject.key === k) { view.tab = "stats"; render(); return; }
+            pendingTab = "stats"; selectSubject(k);
+          });
+        }
       }
 
       /* ----- 科目選択画面（選んだ区分の科目だけを表示） ----- */
@@ -1583,14 +1488,12 @@
         syncPeriodBtn();
         updateBreadcrumb();
         document.body.classList.remove("in-quiz");
-        updateTabs();
-        updateWrongBadge();
         var tk = effTrackKey();
         var trk = findTrack(tk);
         var pDef = periodDef();
-        var flowTitle = view.flow === "category" ? "カテゴリごとに学習" : (view.flow === "session" ? "試験回ごとに学習" : null);
+        var flowTitle = view.flow === "category" ? "カテゴリごとに学習" : (view.flow === "session" ? "試験回ごとに学習" : (view.flow === "review" ? "復習（間違えた問題）" : null));
         var html = '<h2 class="sec">' + (flowTitle ? esc(flowTitle) + '（' + esc(trk.short) + '）' : '科目を選ぶ（' + esc(trk.short) + '）') + '</h2>' +
-          '<p class="lead">' + (flowTitle ? '科目を選ぶと、その科目の' + (view.flow === "category" ? "カテゴリ一覧" : "試験回一覧") + 'が開きます。' : '') + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>';
+          '<p class="lead">' + (flowTitle ? '科目を選ぶと、その科目の' + (view.flow === "category" ? "カテゴリ一覧" : (view.flow === "review" ? "復習一覧" : "試験回一覧")) + 'が開きます。' : '') + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>';
         var trackSubs = subjectsForTrack(tk);
         var sections = [
           { title: "共通科目", list: trackSubs.filter(function (s) { return s.group === "共通"; }) },
@@ -1621,7 +1524,8 @@
         var cards = app.querySelectorAll("[data-subject]");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () {
-            if (view.flow) view.mode = view.flow;
+            if (view.flow === "review") { pendingTab = "review"; view.flow = null; }
+            else if (view.flow) view.mode = view.flow;
             selectSubject(this.getAttribute("data-subject"));
           });
         }
@@ -1799,8 +1703,7 @@
 
         var html = '<div class="quiz-head">' +
           '<span class="qtitle">' + esc(currentTitle()) + '</span>' +
-          '<span class="qcount">' + (idx + 1) + ' / ' + list.length + '</span>' +
-          '<button type="button" class="back-btn" id="fontBtn">文字：' + FONT_LABELS[fontSize()] + '</button></div>';
+          '<span class="qcount">' + (idx + 1) + ' / ' + list.length + '</span></div>';
 
         // 問題ジャンプ
         if (view.tab === "quiz" && view.category) {
@@ -1896,12 +1799,6 @@
         app.innerHTML = html;
 
         // イベント
-        document.getElementById("fontBtn").addEventListener("click", function () {
-          var nxt = FONT_SIZES[(FONT_SIZES.indexOf(fontSize()) + 1) % FONT_SIZES.length];
-          setFontSize(nxt);
-          view._keepScroll = true;
-          render();
-        });
         var jumps = app.querySelectorAll("[data-jump]");
         for (var j = 0; j < jumps.length; j++) {
           jumps[j].addEventListener("click", function () {
@@ -2029,7 +1926,7 @@
             '<div class="session-result"><div class="big">' + cst.correct + ' <small>/ ' + cst.total + ' 問 正解</small></div>' +
             '<div class="bigrate">' + crate + '%<small> 正答率</small></div>' +
             '<p>回答済み ' + cst.answered + ' 問</p>' +
-            (cst.answered < cst.total ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (cst.total - cst.answered) + ' 問あります。カテゴリを選ぶと続きから解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">このカテゴリは全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
+            (cst.answered < cst.total ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (cst.total - cst.answered) + ' 問あります。カテゴリを選ぶと続きから解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">このカテゴリは全問回答済みです。間違えた問題はトップの「復習（間違えた問題）」から解き直せます。</p>') +
             '</div>' + sourceFooter();
           app.innerHTML = chtml;
           return;
@@ -2042,7 +1939,7 @@
           '<div class="session-result"><div class="big">' + st.correct + ' <small>/ ' + st.totalQ + ' 問 正解</small></div>' +
           '<div class="bigrate">' + rate + '%<small> 正答率</small></div>' +
           '<p>回答済み ' + st.answered + ' 問</p>' +
-          (st.answered < st.totalQ ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (st.totalQ - st.answered) + ' 問あります。問題番号から選んで続きを解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この回は全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
+          (st.answered < st.totalQ ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (st.totalQ - st.answered) + ' 問あります。問題番号から選んで続きを解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この回は全問回答済みです。間違えた問題はトップの「復習（間違えた問題）」から解き直せます。</p>') +
           '</div>' + sourceFooter();
         app.innerHTML = html;
       }
@@ -2082,12 +1979,12 @@
         }
       }
 
-      /* ----- 進捗タブ ----- */
+      /* ----- 科目の詳しい進捗（進捗グラフで科目をタップしたときだけ開く） ----- */
       function renderStats() {
         var p = curProfile();
         var sDef = periodDef();
         var html = '<h2 class="sec">進捗（' + esc(p.name) + '）</h2>' +
-          '<p class="lead">' + esc(curSubject.name) + ' のカテゴリごとの回答状況と正答率です。タップするとそのカテゴリを解けます。他科目の進捗は科目選択画面で確認できます。</p>' +
+          '<p class="lead">' + esc(curSubject.name) + ' のカテゴリごとの回答状況と正答率です（表示のみ）。他の科目の進捗は、進捗グラフの画面で科目をタップすると見られます。</p>' +
           (sDef.years ? '<p class="lead" style="margin-top:10px">下の集計は期間（' + sDef.label + ' ・ ' + periodRangeText() + '）内の問題だけを数えています。</p>' : '') +
           '<div class="cat-list" style="margin-top:0">';
         CATS.forEach(function (c) {
@@ -2095,11 +1992,11 @@
           if (!st.total) return;
           var cpct = Math.round(st.answered / st.total * 100);
           var crate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
-          html += '<button type="button" class="cat-card" data-category="' + esc(c.name) + '">' +
+          html += '<div class="cat-card">' +
             '<span class="cbody"><span class="cname" style="font-size:15px">' + esc((c.no ? c.no + "．" : "") + c.name) + '</span><br>' +
             '<span class="cmeta">' + st.answered + ' / ' + st.total + ' 問' + (st.wrong ? ' ・ 間違い ' + st.wrong + ' 問' : '') + '</span></span>' +
             '<span class="cright"><span class="crate">' + crate + '</span><span class="cprog"> 正答率</span>' +
-            '<span class="mini-bar"><i style="width:' + cpct + '%"></i></span></span></button>';
+            '<span class="mini-bar"><i style="width:' + cpct + '%"></i></span></span></div>';
         });
         html += '</div>' +
           '<h2 class="sec">回ごとの進捗</h2>' +
@@ -2108,24 +2005,16 @@
           var st = sessionStats(s);
           var spct = st.totalQ ? Math.round(st.answered / st.totalQ * 100) : 0;
           var srate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
-          html += '<button type="button" class="session-card" data-session="' + esc(s.session) + '">' +
+          html += '<div class="session-card">' +
             '<span><span class="sname" style="font-size:15px">' + esc(s.sessionLabel) + '</span><br>' +
             '<span class="smeta">' + st.answered + ' / ' + st.totalQ + ' 問</span></span>' +
             '<span class="sright"><span class="srate">' + srate + '</span><span class="sprog"> 正答率</span>' +
-            '<span class="mini-bar"><i style="width:' + spct + '%"></i></span></span></button>';
+            '<span class="mini-bar"><i style="width:' + spct + '%"></i></span></span></div>';
         });
         html += '</div>' +
           '<button type="button" class="danger-btn" id="resetBtn">このプロフィールの進捗をすべて消す</button>' +
           sourceFooter();
         app.innerHTML = html;
-        var cards = app.querySelectorAll(".session-card");
-        for (var i = 0; i < cards.length; i++) {
-          cards[i].addEventListener("click", function () { startSession(this.getAttribute("data-session")); });
-        }
-        var ccards2 = app.querySelectorAll(".cat-card");
-        for (var ci = 0; ci < ccards2.length; ci++) {
-          ccards2[ci].addEventListener("click", function () { startCategory(this.getAttribute("data-category")); });
-        }
         var reset = document.getElementById("resetBtn");
         reset.addEventListener("click", function () {
           if (!reset.classList.contains("armed")) {
@@ -2470,16 +2359,6 @@
         view.tab = "top"; view.sessionId = null; view.category = null;
         render();
       });
-
-      /* ---------- タブ ---------- */
-      var tabBtns = document.querySelectorAll(".tabs button");
-      for (var t = 0; t < tabBtns.length; t++) {
-        tabBtns[t].addEventListener("click", function () {
-          var dt = this.getAttribute("data-tab");
-          view.tab = dt === "home" ? "top" : dt;
-          render();
-        });
-      }
 
       /* ---------- ヘッダーのボタン（資格タグ・期間・文字サイズ） ---------- */
       var tagBtns = document.querySelectorAll("[data-track-tag]");
