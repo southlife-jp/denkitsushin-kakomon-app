@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
-    <title>電気通信主任技術者 過去問アプリ</title>
+    <title>電気通信主任技術者過去問アプリ</title>
     <style>
       :root {
         --bg: #edf1f6;
@@ -83,8 +83,7 @@
         max-width: 760px; margin: 0 auto; padding: 10px 14px;
         display: flex; align-items: center; gap: 10px;
       }
-      .top-title { font-weight: 800; font-size: 17px; letter-spacing: .02em; white-space: nowrap; }
-      .top-title small { display: block; font-weight: 600; font-size: 11px; color: var(--ink-soft); letter-spacing: .06em; }
+      .top-title { font-weight: 800; font-size: 15px; letter-spacing: .01em; white-space: nowrap; flex-shrink: 0; }
       .profile-chip {
         margin-left: auto; display: flex; align-items: center; gap: 5px;
         background: none; border: none; border-radius: 8px;
@@ -95,10 +94,42 @@
       .profile-chip .pchev { color: var(--ink-soft); font-size: 10px; flex-shrink: 0; }
       .login-dot { width: 8px; height: 8px; border-radius: 50%; background: #aeb9c7; flex-shrink: 0; }
       .login-dot.on { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-bg); }
+
+      /* ヘッダーのパンくず（現在地）：アプリ名とゲスト／アカウントの間に表示 */
+      .breadcrumb {
+        flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 1px;
+        overflow: hidden; white-space: nowrap; color: var(--ink-soft);
+        font-size: 11.5px; line-height: 1.35;
+      }
+      .breadcrumb .cr-sep { flex: 0 0 auto; padding: 0 1px; font-size: 10px; opacity: .75; }
+      .breadcrumb button.cr, .breadcrumb span.cr {
+        min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .breadcrumb button.cr {
+        flex: 0 1 auto; background: none; border: none; border-radius: 7px;
+        padding: 7px 3px; min-height: 32px; color: var(--accent);
+        font: inherit; font-weight: 700; text-align: left;
+      }
+      .breadcrumb button.cr:active { background: var(--accent-soft); }
+      .breadcrumb span.cr { flex: 0 1 auto; padding: 7px 3px; min-height: 32px; display: inline-flex; align-items: center; }
+      .breadcrumb span.cr.cur { color: var(--ink); font-weight: 700; flex-shrink: 1; }
+      .breadcrumb .cr-qno { flex: 0 0 auto; font-size: 10.5px; color: var(--ink-soft); font-weight: 700; padding-left: 2px; }
+      @media (hover: hover) { .breadcrumb button.cr:hover { background: var(--accent-soft); } }
+      /* 横幅が厳しい幅では、アプリ名（正式名称・省略しない）とゲスト項目を1段目に残し、
+         パンくずを2段目へ回して横いっぱいに表示する */
+      @media (max-width: 680px) {
+        .top-in { flex-wrap: wrap; row-gap: 2px; }
+        .breadcrumb { order: 4; flex: 1 1 100%; }
+        .period-badge { order: 2; }
+        .profile-chip { order: 3; }
+      }
       @media (max-width: 480px) {
-        .top-title { font-size: 15px; }
-        .top-title small { font-size: 10px; }
-        .profile-chip { max-width: 44vw; }
+        .top-in { gap: 6px; padding: 9px 10px; }
+        .top-title { font-size: 13.5px; }
+        .profile-chip { max-width: 32vw; }
+        .breadcrumb { font-size: 11px; }
+        .breadcrumb button.cr, .breadcrumb span.cr { padding-left: 2px; padding-right: 2px; }
+        .period-badge { font-size: 10.5px; padding: 2px 7px; }
       }
 
       /* タブ */
@@ -459,6 +490,8 @@
         transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
       }
       .track-card:active { transform: scale(.99); }
+      .track-card.sel { border-color: var(--accent); border-width: 2px; }
+      .track-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       .track-card .tname { display: block; font-weight: 800; font-size: 20px; line-height: 1.4; }
       .track-card .tdesc { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
       .track-card .tsubs { display: block; font-size: 13px; line-height: 1.8; margin-top: 9px; }
@@ -466,7 +499,12 @@
       .track-card .tprog .trate { font-weight: 800; font-size: 16px; color: var(--accent); }
       .track-card .tprog .tprog-label { font-size: 11.5px; color: var(--ink-soft); }
       .track-card .tprog .mini-bar { margin-left: auto; }
-      .track-card .tgo { display: block; margin-top: 10px; font-weight: 800; color: var(--accent); font-size: 14.5px; }
+      .track-card .tgo {
+        display: inline-block; margin-top: 8px; padding: 8px 2px; min-height: 40px;
+        background: none; border: none; font: inherit;
+        font-weight: 800; color: var(--accent); font-size: 14.5px;
+      }
+      .track-card .tgo:active { opacity: .6; }
       .change-track-row { margin-top: 12px; }
 
       /* 大項目カードの補足（中項目・小項目）と収録なし表示 */
@@ -564,7 +602,8 @@
   <body>
     <header class="top">
       <div class="top-in">
-        <div class="top-title">過去問アプリ<small>電気通信主任技術者試験・全科目</small></div>
+        <div class="top-title">電気通信主任技術者過去問アプリ</div>
+        <nav class="breadcrumb" id="crumbs" aria-label="現在地"></nav>
         <span class="period-badge" id="periodBadge" style="display:none"></span>
         <button type="button" class="profile-chip" id="profileBtn" aria-label="プロフィールとアカウント">
           <span class="login-dot" id="loginDot"></span>
@@ -964,6 +1003,78 @@
         if (def.years) { b.style.display = ""; b.textContent = def.label + "のみ"; }
         else b.style.display = "none";
       }
+      /* ---------- ヘッダーのパンくず（現在地・タップでその階層へ戻る） ---------- */
+      var crumbHideQno = false;
+      function crumbGo(level) {
+        if (level === "track") {
+          if (trackKey()) { view.tab = "subjects"; renderSubjects(); }
+          else { view.tab = "tracks"; renderTracks(); }
+        } else if (level === "subject") {
+          if (DATA && curSubject) { view.tab = "home"; render(); }
+          else if (curSubject) { selectSubject(curSubject.key); }
+          else if (store.subjectKey && findSubject(store.subjectKey)) { selectSubject(store.subjectKey); }
+        }
+      }
+      function breadcrumbItems() {
+        var items = [];
+        try {
+          if (view.tab === "tracks") {
+            items.push({ label: "資格を選ぶ", cur: true });
+            return items;
+          }
+          var tk = trackKey();
+          var trk = tk ? findTrack(tk) : null;
+          if (view.tab === "subjects") {
+            items.push(trk ? { label: trk.short, cur: true } : { label: "資格を選ぶ", cur: true });
+            return items;
+          }
+          if (!DATA) {
+            // 科目データ未読み込みの画面では、区分までだけを表示する
+            items.push(trk ? { label: trk.short, cur: true } : { label: "資格を選ぶ", cur: true });
+            return items;
+          }
+          if (trk) items.push({ label: trk.short, level: "track" });
+          var subjName = curSubject ? curSubject.name : null;
+          if (subjName) items.push({ label: subjName, level: "subject" });
+          if (view.tab === "home") {
+            items.push({ label: view.mode === "category" ? "カテゴリ" : "試験回", cur: true });
+          } else if (view.tab === "quiz") {
+            if (view.category) items.push({ label: categoryShort(view.category), cur: true, qno: crumbHideQno ? "" : ((view.qIndex || 0) + 1) + "問目" });
+            else if (view.sessionId && DATA) items.push({ label: findSession(view.sessionId).sessionLabel, cur: true, qno: crumbHideQno ? "" : ((view.qIndex || 0) + 1) + "問目" });
+          } else if (view.tab === "reviewQuiz") {
+            items.push({ label: "復習", cur: true, qno: crumbHideQno ? "" : ((view.qIndex || 0) + 1) + "問目" });
+          } else if (view.tab === "review") {
+            items.push({ label: "復習", cur: true });
+          } else if (view.tab === "stats") {
+            items.push({ label: "進捗", cur: true });
+          } else if (subjName) {
+            // 末尾の科目を現在地にする（上記以外の画面）
+            items[items.length - 1] = { label: subjName, cur: true };
+          }
+        } catch (e) { /* パンくずは補助表示なので、失敗しても画面は壊さない */ }
+        return items;
+      }
+      function updateBreadcrumb() {
+        var el = document.getElementById("crumbs");
+        if (!el) return;
+        var items = breadcrumbItems();
+        if (!items.length) { el.innerHTML = ""; return; }
+        el.innerHTML = items.map(function (it, i) {
+          var s = (i ? '<span class="cr-sep" aria-hidden="true">›</span>' : "");
+          if (it.cur || !it.level) {
+            s += '<span class="cr cur" aria-current="page" title="' + esc(it.label) + '">' + esc(it.label) + "</span>";
+          } else {
+            s += '<button type="button" class="cr" data-crumb="' + esc(it.level) + '" title="' + esc(it.label) + '">' + esc(it.label) + "</button>";
+          }
+          if (it.qno) s += '<span class="cr-qno">・' + esc(it.qno) + "</span>";
+          return s;
+        }).join("");
+        var btns = el.querySelectorAll("[data-crumb]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener("click", function () { crumbGo(this.getAttribute("data-crumb")); });
+        }
+      }
+
       function bindPeriodSelector() {
         var btns = app.querySelectorAll("[data-period]");
         for (var i = 0; i < btns.length; i++) {
@@ -1107,6 +1218,7 @@
 
       function render() {
         syncPeriodBadge();
+        updateBreadcrumb();
         document.body.classList.toggle("in-quiz", view.tab === "quiz" || view.tab === "reviewQuiz");
         if (view.tab === "tracks") { renderTracks(); return; }
         if (view.tab === "subjects" || !DATA) { renderSubjects(); return; }
@@ -1154,14 +1266,15 @@
       /* ----- 資格選択画面（最初に伝送交換／線路を選ぶ） ----- */
       function renderTracks() {
         syncPeriodBadge();
+        updateBreadcrumb();
         document.body.classList.remove("in-quiz");
         updateTabs();
         updateWrongBadge();
         var html = '<h2 class="sec">資格を選ぶ</h2>' +
-          '<p class="lead">電気通信主任技術者は「伝送交換」と「線路」の2区分です。まず受験する区分を選んでください（あとから変更できます）。</p>';
+          '<p class="lead">受験する区分を選んでください。</p>';
         var lpT = lastPos();
         if (lpT) {
-          html += '<div><button type="button" class="resume-link" id="resumeBtn">前回のつづき：' + esc(resumeText(lpT)) + ' →</button></div>';
+          html += '<div><button type="button" class="resume-link" id="resumeBtn">つづきから：' + esc(resumeText(lpT)) + ' →</button></div>';
         }
         html += periodSelectorHtml();
         TRACKS.forEach(function (tr) {
@@ -1170,25 +1283,49 @@
           var pct = tp.total ? Math.round(tp.answered / tp.total * 100) : 0;
           var rate = tp.answered ? Math.round(tp.correct / tp.answered * 100) + '%' : '—';
           var cur = trackKey() === tr.key;
-          html += '<button type="button" class="track-card" data-track="' + tr.key + '">' +
+          html += '<div class="track-card' + (cur ? ' sel' : '') + '" data-track="' + tr.key + '" role="button" tabindex="0" aria-pressed="' + (cur ? 'true' : 'false') + '" aria-label="' + esc(tr.name) + 'を選択">' +
             '<span class="tname">' + esc(tr.name) + (cur ? ' <span class="scur" style="font-size:12px;font-weight:800;color:var(--accent)">選択中</span>' : '') + '</span>' +
             '<span class="tdesc">' + esc(tr.desc) + ' ・ 全' + subs.length + '科目</span>' +
             '<span class="tsubs">' + subs.map(function (s) { return esc(s.name); }).join("、") + '</span>' +
             '<span class="tprog"><span class="trate">' + rate + '</span>' +
             '<span class="tprog-label">正答率 ・ 回答済み ' + tp.answered + ' / ' + tp.total + ' 問（' + pct + '%）</span>' +
             '<span class="mini-bar"><i style="width:' + pct + '%"></i></span></span>' +
-            '<span class="tgo">この区分の科目を見る →</span></button>';
+            '<button type="button" class="tgo" data-track-go="' + tr.key + '">この区分の科目を見る →</button></div>';
         });
         html += sourceFooter();
         app.innerHTML = html;
         bindPeriodSelector();
+        // カードのタップ＝区分の選択だけ（保存して「選択中」表示に切り替え、トップページに留まる）。
+        // 科目一覧へ進むのは「この区分の科目を見る」からだけ。
+        function selectTrack(k) {
+          if (trackKey() === k) return;
+          store.trackKey = k;
+          saveStore();
+          renderTracks();
+        }
+        function goSubjects(k) {
+          if (trackKey() !== k) { store.trackKey = k; saveStore(); }
+          view.tab = "subjects";
+          renderSubjects();
+        }
         var tcards = app.querySelectorAll("[data-track]");
         for (var i = 0; i < tcards.length; i++) {
           tcards[i].addEventListener("click", function () {
-            store.trackKey = this.getAttribute("data-track");
-            saveStore();
-            view.tab = "subjects";
-            renderSubjects();
+            selectTrack(this.getAttribute("data-track"));
+          });
+          tcards[i].addEventListener("keydown", function (e) {
+            if (e.target !== this) return; // 「科目を見る」ボタン上のキーはボタン側に任せる
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              selectTrack(this.getAttribute("data-track"));
+            }
+          });
+        }
+        var tgos = app.querySelectorAll("[data-track-go]");
+        for (var gi = 0; gi < tgos.length; gi++) {
+          tgos[gi].addEventListener("click", function (e) {
+            e.stopPropagation();
+            goSubjects(this.getAttribute("data-track-go"));
           });
         }
         var rbT = document.getElementById("resumeBtn");
@@ -1207,6 +1344,7 @@
       function renderSubjects() {
         if (!trackKey()) { renderTracks(); return; }
         syncPeriodBadge();
+        updateBreadcrumb();
         document.body.classList.remove("in-quiz");
         updateTabs();
         updateWrongBadge();
@@ -1215,10 +1353,6 @@
         var html = '<h2 class="sec">科目を選ぶ（' + esc(trk.short) + '）</h2>' +
           '<p class="lead">' + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>' +
           '<div class="change-track-row"><button type="button" class="back-btn" id="changeTrackBtn">← 資格（伝送交換／線路）を変える</button></div>';
-        var lpS = lastPos();
-        if (lpS) {
-          html += '<div><button type="button" class="resume-link" id="resumeBtn">前回のつづき：' + esc(resumeText(lpS)) + ' →</button></div>';
-        }
         html += periodSelectorHtml();
         var trackSubs = subjectsForTrack(tk);
         var sections = [
@@ -1255,16 +1389,6 @@
         }
         var ctb = document.getElementById("changeTrackBtn");
         if (ctb) ctb.addEventListener("click", function () { view.tab = "tracks"; renderTracks(); });
-        var rbS = document.getElementById("resumeBtn");
-        if (rbS) rbS.addEventListener("click", function () {
-          var lp = lastPos(); if (!lp) return;
-          if (curSubject && curSubject.key === lp.subjectKey && DATA) {
-            if (applyResume(lp)) render();
-          } else {
-            pendingResume = lp;
-            selectSubject(lp.subjectKey);
-          }
-        });
       }
 
       /* ----- ホーム：回の一覧 ----- */
@@ -1288,23 +1412,6 @@
           '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span>' +
           '<button type="button" id="changeSubjectBtn">科目を変える</button></div>';
         html += periodSelectorHtml();
-        var lpH = lastPos();
-        if (lpH && lpH.subjectKey === curSubject.key) {
-          var rtext = "";
-          if (lpH.mode === "review" && lpH.reviewIds && lpH.reviewIds.length) {
-            rtext = "復習モード ・ " + ((lpH.qIndex || 0) + 1) + " / " + lpH.reviewIds.length + " 問目";
-          } else if (lpH.mode === "category" && lpH.category && categoryQuestions(lpH.category).length) {
-            rtext = categoryShort(lpH.category) + " ・ " + ((lpH.qIndex || 0) + 1) + " / " + categoryQuestions(lpH.category).length + " 問目";
-          } else if (lpH.sessionId) {
-            var ssH = findSession(lpH.sessionId);
-            if (ssH.session === lpH.sessionId && inPeriod(ssH)) {
-              rtext = ssH.sessionLabel + " ・ " + ((lpH.qIndex || 0) + 1) + " / " + flatten(ssH).length + " 問目";
-            }
-          }
-          if (rtext) {
-            html += '<div><button type="button" class="resume-link" id="resumeBtn">前回のつづき：' + esc(curSubject.name) + ' ・ ' + esc(rtext) + ' →</button></div>';
-          }
-        }
         html += '<div class="summary"><div class="row">' +
           '<div class="stat"><b>' + totalQ + '問</b><span>' + (pDef.years ? '解ける問題（' + pDef.label + ' ・ ' + pStats.sessions + '回）' : '収録問題（全' + DATA.sessions.length + '回）') + '</span></div>' +
           '<div class="stat"><b>' + pct + '%</b><span>回答済み ' + ansU + ' / ' + totalU + ' 単位</span></div>' +
@@ -1389,11 +1496,6 @@
             render();
           });
         }
-        var rbH = document.getElementById("resumeBtn");
-        if (rbH) rbH.addEventListener("click", function () {
-          var lp = lastPos();
-          if (lp && applyResume(lp)) render();
-        });
         var fbtns = app.querySelectorAll("[data-font-size]");
         for (var fi = 0; fi < fbtns.length; fi++) {
           fbtns[fi].addEventListener("click", function () {
@@ -1717,6 +1819,7 @@
 
       function renderSessionResult() {
         if (view.tab === "reviewQuiz") { view.tab = "review"; render(); return; }
+        crumbHideQno = true; updateBreadcrumb(); crumbHideQno = false;
         if (view.category) {
           var cst = categoryStats(view.category);
           var crate = cst.answered ? Math.round(cst.correct / cst.answered * 100) : 0;
@@ -2182,19 +2285,14 @@
         });
       }
 
-      /* ---------- 起動：前回選んだ科目があればそれを開き、なければ科目選択から ---------- */
+      /* ---------- 起動：毎回トップメニュー（資格を選ぶ）から始める ----------
+         前回の科目・問題位置への自動復帰はしない。再開はトップ画面の
+         「つづきから」リンクからだけ行える（進捗・回答記録は従来どおり保存される）。 */
       applyFont();
       syncProfileHeader();
       initAuth();
-      if (store.subjectKey && findSubject(store.subjectKey)) {
-        selectSubject(store.subjectKey);
-      } else if (trackKey()) {
-        view.tab = "subjects";
-        renderSubjects();
-      } else {
-        view.tab = "tracks";
-        renderTracks();
-      }
+      view.tab = "tracks";
+      renderTracks();
     </script>
   </body>
 </html>
