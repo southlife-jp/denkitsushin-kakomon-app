@@ -154,6 +154,15 @@
       .breadcrumb span.cr { flex: 0 1 auto; padding: 7px 3px; min-height: 32px; display: inline-flex; align-items: center; }
       .breadcrumb span.cr.cur { color: var(--ink); font-weight: 700; flex-shrink: 1; }
       .breadcrumb .cr-qno { flex: 0 0 auto; font-size: 10.5px; color: var(--ink-soft); font-weight: 700; padding-left: 2px; }
+      /* パンくず行の左端の「戻る」ボタン：戻る操作はここに一本化する */
+      .breadcrumb .cr-back {
+        flex: 0 0 auto; margin-right: 6px;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+        color: var(--ink); font: inherit; font-size: 12px; font-weight: 800;
+        padding: 4px 13px; min-height: 32px; line-height: 1.4; white-space: nowrap;
+      }
+      .breadcrumb .cr-back:active { background: var(--accent-soft); }
+      @media (hover: hover) { .breadcrumb .cr-back:hover { border-color: var(--accent); color: var(--accent); } }
       @media (hover: hover) { .breadcrumb button.cr:hover { background: var(--accent-soft); } }
       /* 横幅が厳しい幅では、アプリ名（正式名称・省略しない）とゲスト項目を1段目に残し、
          パンくずを2段目へ回して横いっぱいに表示する */
@@ -219,24 +228,6 @@
       .session-card .sprog { font-size: 11.5px; color: var(--ink-soft); }
       .mini-bar { width: 74px; height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-top: 4px; margin-left: auto; }
       .mini-bar i { display: block; height: 100%; background: var(--accent); }
-
-      /* 解き方切り替え（回別／カテゴリ別） */
-      .mode-switch {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
-        background: var(--surface2); border-radius: 12px; padding: 4px; margin-top: 18px;
-      }
-      .mode-switch button {
-        border: none; background: none; border-radius: 10px; padding: 12px 6px;
-        font-weight: 800; font-size: 15px; color: var(--ink-soft);
-        transition: background .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
-      }
-      .mode-switch button:active { transform: scale(.98); }
-      .mode-switch button.on {
-        background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); color: #fff;
-        box-shadow: var(--btn-shadow);
-      }
-      .mode-switch button.on small { color: rgba(255, 255, 255, .85); }
-      .mode-switch button small { display: block; font-weight: 600; font-size: 11px; margin-top: 1px; }
 
       /* 対象期間（直近何年分に絞る） */
       .period-card {
@@ -442,7 +433,7 @@
         .back-btn:hover { border-color: var(--accent); color: var(--accent); }
       }
       @media (prefers-reduced-motion: reduce) {
-        .cat-card, .session-card, .track-card, .wrong-item, .mode-switch button,
+        .cat-card, .session-card, .track-card, .wrong-item,
         .period-switch button, .font-switch button,
         .check-btn, .primary-btn, .actionbar .ab-main {
           transition: none;
@@ -512,10 +503,6 @@
       }
       .subject-bar .sb-name { font-weight: 800; font-size: 16px; }
       .subject-bar .sb-group { font-size: 12px; color: var(--ink-soft); font-weight: 700; margin-left: 7px; }
-      .subject-bar button {
-        margin-left: auto; background: var(--accent-soft); color: var(--accent); border: none;
-        border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 700; flex-shrink: 0;
-      }
       .subj-group-title { font-size: 15px; font-weight: 800; margin: 22px 0 2px; color: var(--ink-soft); }
       .subj-card .scur { font-size: 11px; font-weight: 800; color: var(--accent); }
 
@@ -1254,6 +1241,26 @@
         } catch (e) { /* パンくずは補助表示なので、失敗しても画面は壊さない */ }
         return items;
       }
+      /* ---------- パンくず左端の「戻る」ボタン（1つ上の階層へ・戻る操作はここに一本化） ---------- */
+      function backTarget() {
+        if (view.tab === "top") return null; // トップページには戻るボタンは不要
+        if (view.tab === "subjects" || view.tab === "trackStats") return "top";
+        if (view.tab === "home") return "subjects";
+        if (view.tab === "quiz") return "home";
+        if (view.tab === "reviewQuiz") return "review";
+        if (view.tab === "review" || view.tab === "stats") return DATA ? "home" : "top";
+        return "top";
+      }
+      function goBackOne() {
+        var t = backTarget();
+        if (!t) return;
+        if (t === "top") { view.tab = "top"; renderTop(); return; }
+        if (t === "subjects") {
+          // 科目一覧は、いまの科目で使っている学習方法（カテゴリ／試験回）の入口として開く
+          view.flow = view.mode; view.tab = "subjects"; renderSubjects(); return;
+        }
+        view.tab = t; render();
+      }
       function updateBreadcrumb() {
         var el = document.getElementById("crumbs");
         if (!el) return;
@@ -1262,7 +1269,7 @@
         var items = breadcrumbItems();
         if (!items.length) { el.innerHTML = ""; el.style.display = "none"; return; }
         el.style.display = "";
-        el.innerHTML = items.map(function (it, i) {
+        el.innerHTML = (backTarget() ? '<button type="button" class="cr-back" id="crumbBackBtn">← 戻る</button>' : "") + items.map(function (it, i) {
           var s = (i ? '<span class="cr-sep" aria-hidden="true">›</span>' : "");
           if (it.cur || !it.level) {
             s += '<span class="cr cur" aria-current="page" title="' + esc(it.label) + '">' + esc(it.label) + "</span>";
@@ -1276,6 +1283,8 @@
         for (var i = 0; i < btns.length; i++) {
           btns[i].addEventListener("click", function () { crumbGo(this.getAttribute("data-crumb")); });
         }
+        var bb = document.getElementById("crumbBackBtn");
+        if (bb) bb.addEventListener("click", goBackOne);
       }
 
       /* ---------- 文字サイズ（端末内に保存・全プロフィール共通） ---------- */
@@ -1413,11 +1422,7 @@
           })
           .catch(function () {
             document.getElementById("app").innerHTML =
-              '<div class="loaderr">問題データの読み込みに失敗しました。<br>通信状態を確認してください。<br><br>' +
-              '<button type="button" class="back-btn" id="loadRetryBtn">科目の選択に戻る</button></div>';
-            document.getElementById("loadRetryBtn").addEventListener("click", function () {
-              view.tab = "subjects"; renderSubjects();
-            });
+              '<div class="loaderr">問題データの読み込みに失敗しました。<br>通信状態を確認して、もう一度科目を選んでください。</div>';
           });
       }
 
@@ -1569,13 +1574,8 @@
             '<div class="bar"><i style="width:' + (pr.answered ? srate : 0) + '%"></i></div>' +
             '<div class="g-meta">正答率 ・ 回答済み ' + pr.answered + ' 問（' + esc(pDef.label) + '）' + (pr.answered ? '' : ' ・ 未着手') + '</div></div>';
         });
-        html += '</div>' +
-          '<div style="margin-top:16px"><button type="button" class="back-btn" id="trackStatsBack">← トップへ戻る</button></div>' +
-          sourceFooter();
+        html += '</div>' + sourceFooter();
         app.innerHTML = html;
-        document.getElementById("trackStatsBack").addEventListener("click", function () {
-          view.tab = "top"; renderTop();
-        });
       }
 
       /* ----- 科目選択画面（選んだ区分の科目だけを表示） ----- */
@@ -1645,19 +1645,15 @@
         var pct = totalU ? Math.round(ansU / totalU * 100) : 0;
         var rate = ansU ? Math.round(corU / ansU * 100) : 0;
         var html = '<div class="subject-bar"><span><span class="sb-name">' + esc(curSubject.name) + '</span>' +
-          '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span>' +
-          '<button type="button" id="changeSubjectBtn">科目を変える</button></div>';
+          '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span></div>';
         html += '<div class="summary"><div class="row">' +
           '<div class="stat"><b>' + totalQ + '問</b><span>' + (pDef.years ? '解ける問題（' + pDef.label + ' ・ ' + pStats.sessions + '回）' : '収録問題（全' + DATA.sessions.length + '回）') + '</span></div>' +
           '<div class="stat"><b>' + pct + '%</b><span>回答済み ' + ansU + ' / ' + totalU + ' 単位</span></div>' +
           '<div class="stat"><b>' + (ansU ? rate + '%' : '—') + '</b><span>正答率</span></div>' +
           '</div><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
 
-        html += '<div class="mode-switch" role="group" aria-label="解き方の切り替え">' +
-          '<button type="button" data-mode="session"' + (view.mode === "session" ? ' class="on"' : "") + '>📝 試験回で解く<small>1回分を通しで解く</small></button>' +
-          '<button type="button" data-mode="category"' + (view.mode === "category" ? ' class="on"' : "") + '>🗂 カテゴリで解く<small>分野ごとに集中して解く</small></button>' +
-          '</div>';
-
+        /* 学習方法（カテゴリ／試験回）はトップメニューからどちらで入ったかで固定。
+           切り替えはここでは行わず、上の階層（科目一覧・トップ）に戻って選び直す。 */
         if (view.mode === "category") {
           var poolText = pDef.years
             ? pDef.label + '（' + periodRangeText() + ' ・ ' + pStats.sessions + '回）に絞った問題'
@@ -1713,16 +1709,6 @@
         }
         html += sourceFooter();
         app.innerHTML = html;
-        document.getElementById("changeSubjectBtn").addEventListener("click", function () {
-          view.tab = "subjects"; renderSubjects();
-        });
-        var modes = app.querySelectorAll("[data-mode]");
-        for (var m = 0; m < modes.length; m++) {
-          modes[m].addEventListener("click", function () {
-            view.mode = this.getAttribute("data-mode");
-            render();
-          });
-        }
         var cards = app.querySelectorAll(".session-card");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () {
@@ -1751,6 +1737,7 @@
       }
 
       function startSession(sessionId) {
+        view.mode = "session";
         var sess = findSession(sessionId);
         var flat = flatten(sess);
         var r = results();
@@ -1811,7 +1798,6 @@
         if (saved && q.type === "fill" && !t.blankPicks) t.blankPicks = saved.blankPicks || {};
 
         var html = '<div class="quiz-head">' +
-          '<button type="button" class="back-btn" id="backBtn">← 戻る</button>' +
           '<span class="qtitle">' + esc(currentTitle()) + '</span>' +
           '<span class="qcount">' + (idx + 1) + ' / ' + list.length + '</span>' +
           '<button type="button" class="back-btn" id="fontBtn">文字：' + FONT_LABELS[fontSize()] + '</button></div>';
@@ -1910,10 +1896,6 @@
         app.innerHTML = html;
 
         // イベント
-        document.getElementById("backBtn").addEventListener("click", function () {
-          view.tab = view.tab === "reviewQuiz" ? "review" : "home";
-          render();
-        });
         document.getElementById("fontBtn").addEventListener("click", function () {
           var nxt = FONT_SIZES[(FONT_SIZES.indexOf(fontSize()) + 1) % FONT_SIZES.length];
           setFontSize(nxt);
@@ -2042,7 +2024,7 @@
         if (view.category) {
           var cst = categoryStats(view.category);
           var crate = cst.answered ? Math.round(cst.correct / cst.answered * 100) : 0;
-          var chtml = '<div class="quiz-head"><button type="button" class="back-btn" id="backBtn">← カテゴリ一覧へ</button>' +
+          var chtml = '<div class="quiz-head">' +
             '<span class="qtitle">' + esc(view.category) + '</span></div>' +
             '<div class="session-result"><div class="big">' + cst.correct + ' <small>/ ' + cst.total + ' 問 正解</small></div>' +
             '<div class="bigrate">' + crate + '%<small> 正答率</small></div>' +
@@ -2050,13 +2032,12 @@
             (cst.answered < cst.total ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (cst.total - cst.answered) + ' 問あります。カテゴリを選ぶと続きから解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">このカテゴリは全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
             '</div>' + sourceFooter();
           app.innerHTML = chtml;
-          document.getElementById("backBtn").addEventListener("click", function () { view.tab = "home"; view.category = null; render(); });
           return;
         }
         var sess = findSession(view.sessionId);
         var st = sessionStats(sess);
         var rate = st.answered ? Math.round(st.correct / st.answered * 100) : 0;
-        var html = '<div class="quiz-head"><button type="button" class="back-btn" id="backBtn">← 回の選択へ</button>' +
+        var html = '<div class="quiz-head">' +
           '<span class="qtitle">' + esc(sess.sessionLabel) + '</span></div>' +
           '<div class="session-result"><div class="big">' + st.correct + ' <small>/ ' + st.totalQ + ' 問 正解</small></div>' +
           '<div class="bigrate">' + rate + '%<small> 正答率</small></div>' +
@@ -2064,7 +2045,6 @@
           (st.answered < st.totalQ ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (st.totalQ - st.answered) + ' 問あります。問題番号から選んで続きを解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この回は全問回答済みです。間違えた問題は「復習」タブから解き直せます。</p>') +
           '</div>' + sourceFooter();
         app.innerHTML = html;
-        document.getElementById("backBtn").addEventListener("click", function () { view.tab = "home"; render(); });
       }
 
       /* ----- 復習リスト ----- */
