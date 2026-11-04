@@ -1088,6 +1088,23 @@
         senmon_doboku: [2019, 2018, 2017, 2016, 2015, 2014, 2013],
         senmon_suitei: [2019, 2018, 2017, 2016, 2015, 2014, 2013]
       };
+      /* 科目ごとの年度別の収録回数・問題数（SUBJECT_YEARSと同じ新しい順）。
+         [その年度の回数, その年度の問題数] の組。収録データから集計した実績値で、
+         科目データを読み込んでいなくても、期間で絞った回数・問題数を出すために使う */
+      var SUBJECT_YEAR_COUNTS = {
+        houki: [[1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50]],
+        system: [[1,20], [2,40], [2,40], [2,40], [2,40], [2,40], [1,20], [2,40], [2,40], [2,40], [2,40], [2,40], [2,40], [2,40], [2,40]],
+        setubi_ts: [[1,39], [2,77], [2,77], [2,76], [2,78], [2,77], [1,24], [2,49], [2,50], [2,48], [2,49], [2,50], [2,49], [2,49], [2,50]],
+        senmon_denso: [[1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,30]],
+        senmon_musen: [[1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50]],
+        senmon_kokan: [[1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,30]],
+        senmon_data: [[1,25], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50]],
+        senmon_denryoku: [[1,24], [2,46], [2,47], [2,49], [2,47], [2,47], [2,48], [2,48]],
+        senro: [[1,37], [2,74], [2,74], [2,74], [2,76], [2,74], [1,24], [2,48], [2,49], [2,48], [2,49], [2,50], [2,49], [2,49], [2,50]],
+        senmon_senro: [[2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50]],
+        senmon_doboku: [[2,44], [2,44], [2,44], [2,44], [2,44], [2,44], [2,44]],
+        senmon_suitei: [[2,50], [2,50], [2,50], [2,50], [2,50], [2,50], [2,50]]
+      };
       /* 問題ID（[科目-]r8_1-... の形式）から、その問題の試験年度（西暦）を返す */
       function idSessionYear(id) {
         var rest = id;
@@ -1107,6 +1124,18 @@
         var keep = {};
         (SUBJECT_YEARS[key] || []).slice(0, def.years).forEach(function (y) { keep[y] = 1; });
         return keep;
+      }
+      /* その科目で、現在の期間に含まれる回数・問題数（科目データ未ロードでも使える） */
+      function subjectPeriodTotals(key) {
+        var def = periodDef();
+        var sub = findSubject(key);
+        var rows = SUBJECT_YEAR_COUNTS[key];
+        if (!def.years || !rows) {
+          return { sessions: sub ? sub.sessions : 0, questions: sub ? sub.questions : 0 };
+        }
+        var s = 0, q = 0;
+        for (var i = 0; i < rows.length && i < def.years; i++) { s += rows[i][0]; q += rows[i][1]; }
+        return { sessions: s, questions: q };
       }
       /* 保存済み進捗だけから、期間内の科目別回答状況を集計する（データ未ロードでも使える） */
       function subjectProgressPeriod(key) {
@@ -1558,6 +1587,7 @@
         updateWrongBadge();
         var tk = effTrackKey();
         var trk = findTrack(tk);
+        var pDef = periodDef();
         var flowTitle = view.flow === "category" ? "カテゴリごとに学習" : (view.flow === "session" ? "試験回ごとに学習" : null);
         var html = '<h2 class="sec">' + (flowTitle ? esc(flowTitle) + '（' + esc(trk.short) + '）' : '科目を選ぶ（' + esc(trk.short) + '）') + '</h2>' +
           '<p class="lead">' + (flowTitle ? '科目を選ぶと、その科目の' + (view.flow === "category" ? "カテゴリ一覧" : "試験回一覧") + 'が開きます。' : '') + esc(trk.name) + 'の科目です。共通科目は両区分に含まれます。科目を選ぶと、その科目の問題だけを読み込みます。進捗は科目ごとに分かれて保存されます。専門的能力は令和2年度第2回までで、令和3年度以降は設備科目に統合され、設備側にカテゴリ付きで収録されています。</p>';
@@ -1570,14 +1600,15 @@
           if (!sec.list.length) return;
           html += '<div class="subj-group-title">' + esc(sec.title) + '</div><div class="cat-list" style="margin-top:6px">';
           sec.list.forEach(function (sub) {
-            var pr = subjectProgress(sub.key);
-            var pct = sub.questions ? Math.round(pr.answered / sub.questions * 100) : 0;
+            var pr = subjectProgressPeriod(sub.key);
+            var pt = subjectPeriodTotals(sub.key);
+            var pct = pt.questions ? Math.round(pr.answered / pt.questions * 100) : 0;
             var rate = pr.answered ? Math.round(pr.correct / pr.answered * 100) + '%' : '—';
             var cur = curSubject && curSubject.key === sub.key;
             html += '<button type="button" class="cat-card subj-card" data-subject="' + sub.key + '">' +
               '<span class="cbody"><span class="cname" style="font-size:15.5px">' + esc(sub.name) +
               (cur ? ' <span class="scur">選択中</span>' : '') + '</span><br>' +
-              '<span class="cmeta">全' + sub.sessions + '回 ・ ' + sub.questions + '問' +
+              '<span class="cmeta">' + (pDef.years ? esc(pDef.label) + ' ・ ' : '全') + pt.sessions + '回 ・ ' + pt.questions + '問' +
               (pr.answered ? ' ・ 回答済み ' + pr.answered + ' 問' : ' ・ 未着手') + '</span></span>' +
               '<span class="cright"><span class="crate">' + rate + '</span>' +
               '<span class="cprog"> 正答率</span>' +
