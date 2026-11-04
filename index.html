@@ -160,6 +160,28 @@
       @media (prefers-color-scheme: dark) { .mode-switch button.on { color: var(--ink); } }
       .mode-switch button small { display: block; font-weight: 600; font-size: 11px; margin-top: 1px; }
 
+      /* 対象期間（直近何年分に絞る） */
+      .period-card {
+        background: var(--surface); border: 1.5px solid var(--accent); border-radius: 12px;
+        padding: 12px 14px 13px; box-shadow: var(--shadow); margin-top: 14px;
+      }
+      .period-card .p-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+      .period-card .p-title { font-weight: 800; font-size: 15px; }
+      .period-card .p-cur { font-weight: 800; font-size: 13px; color: var(--accent); }
+      @media (prefers-color-scheme: dark) { .period-card .p-cur { color: var(--ink); } }
+      .period-card .p-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; line-height: 1.65; }
+      .period-switch {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+        background: var(--surface2); border-radius: 10px; padding: 4px; margin-top: 9px;
+      }
+      .period-switch button {
+        border: none; background: none; border-radius: 8px; padding: 10px 2px; min-height: 44px;
+        font-weight: 800; font-size: 13.5px; color: var(--ink-soft); line-height: 1.3;
+      }
+      .period-switch button.on { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
+      @media (prefers-color-scheme: dark) { .period-switch button.on { color: var(--ink); } }
+      @media (max-width: 380px) { .period-switch button { font-size: 12.5px; } }
+
       /* カテゴリ一覧 */
       .cat-list { display: grid; gap: 10px; margin-top: 12px; }
       .cat-card {
@@ -736,7 +758,7 @@
       }
       function categoryQuestions(catName) {
         var out = [];
-        DATA.sessions.forEach(function (s) {
+        filteredSessions().forEach(function (s) {
           s.groups.forEach(function (g) {
             g.questions.forEach(function (q) { if (inCategory(q, catName)) out.push(q); });
           });
@@ -778,6 +800,118 @@
       }
       function results() { return curProfile().results; }
 
+      /* ---------- 対象期間（直近何年分に絞る・プロフィール別に保存） ----------
+         「直近N年」は、その科目で最も新しい収録年度からN年分（年度単位）。
+         全科目共通の最新回は令和8年度第1回で、共通・設備科目はそこが起点になる。
+         専門的能力のように収録が令和2年度などで終わる科目は、その科目の最新年度が
+         起点になるため、期間を絞っても問題が0件にはならない。
+         期間を変えても回答記録は消えず、表示と出題プールだけが変わる。 */
+      var PERIODS = [
+        { key: "all", label: "全期間", years: 0 },
+        { key: "y10", label: "直近10年", years: 10 },
+        { key: "y5", label: "直近5年", years: 5 },
+        { key: "y3", label: "直近3年", years: 3 }
+      ];
+      function periodDef() {
+        var k = curProfile().periodKey;
+        for (var i = 0; i < PERIODS.length; i++) if (PERIODS[i].key === k) return PERIODS[i];
+        return PERIODS[0];
+      }
+      function setPeriodKey(k) { curProfile().periodKey = k; saveStore(); }
+      /* 回の年度を西暦で返す（平成31年度と令和元年度は同じ2019年度として扱う） */
+      function sessionYear(sess) {
+        var id = (sess && sess.session) || "";
+        var m = /^(r?)(\d+)_\d+$/.exec(id);
+        if (m) {
+          var n = parseInt(m[2], 10);
+          return m[1] === "r" ? n + 2018 : n + 1988;
+        }
+        var label = (sess && sess.sessionLabel) || "";
+        var mm = /(令和|平成)(元|\d+)年度/.exec(label);
+        if (mm) {
+          var y = mm[2] === "元" ? 1 : parseInt(mm[2], 10);
+          return mm[1] === "令和" ? y + 2018 : y + 1988;
+        }
+        return 0;
+      }
+      /* 対象に含める年度の集合（全期間なら null） */
+      function periodYearSet() {
+        if (!DATA) return null;
+        var def = periodDef();
+        if (!def.years) return null;
+        var seen = {}, years = [];
+        DATA.sessions.forEach(function (ss) {
+          var y = sessionYear(ss);
+          if (y && !seen[y]) { seen[y] = 1; years.push(y); }
+        });
+        years.sort(function (a, b) { return b - a; });
+        var keep = {};
+        years.slice(0, def.years).forEach(function (y) { keep[y] = 1; });
+        return keep;
+      }
+      function inPeriod(sess) {
+        var keep = periodYearSet();
+        if (!keep) return true;
+        return !!keep[sessionYear(sess)];
+      }
+      function filteredSessions() {
+        if (!DATA) return [];
+        return DATA.sessions.filter(function (ss) { return inPeriod(ss); });
+      }
+      function periodStats() {
+        var ss = filteredSessions(), q = 0;
+        ss.forEach(function (x) {
+          x.groups.forEach(function (g) { q += g.questions.length; });
+        });
+        return { sessions: ss.length, questions: q };
+      }
+      function periodRangeText() {
+        var ss = filteredSessions();
+        if (!ss.length) return "";
+        function yr(x) {
+          var m = /(.+?年度)/.exec(x.sessionLabel || "");
+          return m ? m[1] : (x.sessionLabel || "");
+        }
+        var a = yr(ss[ss.length - 1]), b = yr(ss[0]);
+        return a === b ? a : a + "〜" + b;
+      }
+      function periodSelectorHtml() {
+        var def = periodDef();
+        var note;
+        if (!def.years) {
+          note = "すべての収録回が対象です。古くて今は使えない問題を外したいときは、直近10年／5年／3年を選ぶと新しい回だけに絞れます。選んでも回答記録は消えません。";
+        } else if (DATA && curSubject && view.tab !== "tracks" && view.tab !== "subjects") {
+          var pst = periodStats();
+          note = "対象：" + periodRangeText() + " ・ " + pst.sessions + "回 ・ " + pst.questions + "問（" + curSubject.name + "）。この期間の回・問題だけが表示と出題の対象になります。回答記録は消えません。";
+        } else {
+          note = "各科目の最も新しい収録年度から" + def.years + "年分だけが対象になります（専門的能力など収録が古い年度で終わる科目は、その科目の最新年度から数えます）。科目を選ぶと、その科目の対象回数・問題数がここに表示されます。回答記録は消えません。";
+        }
+        var html = '<div class="period-card"><div class="p-head">' +
+          '<span class="p-title">対象期間</span>' +
+          '<span class="p-cur">現在：' + esc(def.label) + '</span></div>' +
+          '<div class="period-switch" role="group" aria-label="対象期間の切り替え">' +
+          PERIODS.map(function (pd) {
+            return '<button type="button" data-period="' + pd.key + '"' + (def.key === pd.key ? ' class="on"' : "") + '>' + pd.label + '</button>';
+          }).join("") +
+          '</div><div class="p-note">' + esc(note) + '</div></div>';
+        return html;
+      }
+      function rerenderPeriodScreen() {
+        if (view.tab === "tracks") renderTracks();
+        else if (view.tab === "subjects" || !DATA) renderSubjects();
+        else render();
+      }
+      function bindPeriodSelector() {
+        var btns = app.querySelectorAll("[data-period]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener("click", function () {
+            if (periodDef().key === this.getAttribute("data-period")) return;
+            setPeriodKey(this.getAttribute("data-period"));
+            rerenderPeriodScreen();
+          });
+        }
+      }
+
       /* ---------- 文字サイズ（端末内に保存・全プロフィール共通） ---------- */
       var FONT_SIZES = ["small", "std", "large"];
       var FONT_LABELS = { small: "小", std: "標準", large: "大" };
@@ -802,7 +936,7 @@
       function applyResume(lp) {
         if (!lp || !DATA || lp.subjectKey !== curSubject.key) return false;
         if (lp.mode === "review" && lp.reviewIds && lp.reviewIds.length) {
-          var ids = lp.reviewIds.filter(function (id) { return !!QMAP[id]; });
+          var ids = lp.reviewIds.filter(function (id) { return !!QMAP[id] && inPeriod(QMAP[id].session); });
           if (ids.length) {
             view.tab = "reviewQuiz"; view.reviewIds = ids;
             view.qIndex = Math.min(lp.qIndex || 0, ids.length - 1);
@@ -817,7 +951,7 @@
         }
         if (lp.sessionId) {
           var found = false;
-          for (var i = 0; i < DATA.sessions.length; i++) if (DATA.sessions[i].session === lp.sessionId) found = true;
+          for (var i = 0; i < DATA.sessions.length; i++) if (DATA.sessions[i].session === lp.sessionId && inPeriod(DATA.sessions[i])) found = true;
           if (found) {
             view.mode = "session"; view.tab = "quiz"; view.sessionId = lp.sessionId;
             view.category = null; view.reviewIds = null; view.qIndex = lp.qIndex || 0;
@@ -846,7 +980,7 @@
       }
       function wrongIds() {
         var r = results(), out = [];
-        DATA.sessions.forEach(function (s) {
+        filteredSessions().forEach(function (s) {
           s.groups.forEach(function (g) {
             g.questions.forEach(function (q) {
               if (r[q.id] && !r[q.id].correct) out.push(q.id);
@@ -967,6 +1101,7 @@
             '<span class="resume-sub">' + esc(resumeText(lpT)) + '</span></button>';
         }
         html += accountCardHtml();
+        html += periodSelectorHtml();
         TRACKS.forEach(function (tr) {
           var subs = subjectsForTrack(tr.key);
           var tp = trackProgress(tr.key);
@@ -985,6 +1120,7 @@
         html += sourceFooter();
         app.innerHTML = html;
         bindAccountCard();
+        bindPeriodSelector();
         var tcards = app.querySelectorAll("[data-track]");
         for (var i = 0; i < tcards.length; i++) {
           tcards[i].addEventListener("click", function () {
@@ -1024,6 +1160,7 @@
             '<span class="resume-sub">' + esc(resumeText(lpS)) + '</span></button>';
         }
         html += accountCardHtml();
+        html += periodSelectorHtml();
         var trackSubs = subjectsForTrack(tk);
         var sections = [
           { title: "共通科目", list: trackSubs.filter(function (s) { return s.group === "共通"; }) },
@@ -1051,6 +1188,7 @@
         html += sourceFooter();
         app.innerHTML = html;
         bindAccountCard();
+        bindPeriodSelector();
         var cards = app.querySelectorAll("[data-subject]");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () {
@@ -1074,8 +1212,10 @@
       /* ----- ホーム：回の一覧 ----- */
       function renderHome() {
         var r = results();
+        var pDef = periodDef();
+        var pStats = periodStats();
         var totalQ = 0, totalU = 0, ansU = 0, corU = 0;
-        DATA.sessions.forEach(function (s) {
+        filteredSessions().forEach(function (s) {
           s.groups.forEach(function (g) {
             g.questions.forEach(function (q) {
               totalQ++; totalU += unitsOf(q);
@@ -1089,6 +1229,7 @@
         var html = '<div class="subject-bar"><span><span class="sb-name">' + esc(curSubject.name) + '</span>' +
           '<span class="sb-group">' + esc((trackKey() ? findTrack(trackKey()).short + ' ・ ' : "") + curSubject.group) + '</span></span>' +
           '<button type="button" id="changeSubjectBtn">科目を変える</button></div>';
+        html += periodSelectorHtml();
         var lpH = lastPos();
         if (lpH && lpH.subjectKey === curSubject.key) {
           var rtext = "";
@@ -1098,7 +1239,9 @@
             rtext = categoryShort(lpH.category) + " ・ " + ((lpH.qIndex || 0) + 1) + " / " + categoryQuestions(lpH.category).length + " 問目";
           } else if (lpH.sessionId) {
             var ssH = findSession(lpH.sessionId);
-            rtext = ssH.sessionLabel + " ・ " + ((lpH.qIndex || 0) + 1) + " / " + flatten(ssH).length + " 問目";
+            if (ssH.session === lpH.sessionId && inPeriod(ssH)) {
+              rtext = ssH.sessionLabel + " ・ " + ((lpH.qIndex || 0) + 1) + " / " + flatten(ssH).length + " 問目";
+            }
           }
           if (rtext) {
             html += '<button type="button" class="resume-card" id="resumeBtn">' +
@@ -1107,7 +1250,7 @@
           }
         }
         html += '<div class="summary"><div class="row">' +
-          '<div class="stat"><b>' + totalQ + '問</b><span>収録問題（全' + DATA.sessions.length + '回）</span></div>' +
+          '<div class="stat"><b>' + totalQ + '問</b><span>' + (pDef.years ? '対象問題（' + pDef.label + ' ・ ' + pStats.sessions + '回）' : '収録問題（全' + DATA.sessions.length + '回）') + '</span></div>' +
           '<div class="stat"><b>' + pct + '%</b><span>回答済み ' + ansU + ' / ' + totalU + ' 単位</span></div>' +
           '<div class="stat"><b>' + (ansU ? rate + '%' : '—') + '</b><span>正答率</span></div>' +
           '</div><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
@@ -1126,10 +1269,13 @@
           '</div>';
 
         if (view.mode === "category") {
+          var poolText = pDef.years
+            ? '対象期間（' + pDef.label + ' ・ ' + periodRangeText() + ' ・ ' + pStats.sessions + '回）から集めた問題'
+            : '全' + DATA.sessions.length + '回分から集めた問題';
           html += '<h2 class="sec">大項目を選ぶ</h2>' +
             '<p class="lead">' + (curSubject.key === "houki"
-              ? '法規の公式出題範囲の「大項目」ごとに、全' + DATA.sessions.length + '回分から集めた問題をまとめて解けます。各カードに中項目・小項目の内訳を示しています。'
-              : '大項目ごとに、全' + DATA.sessions.length + '回分から集めた問題をまとめて解けます。各カードのチップは、その大項目に含まれる分野です。') +
+              ? '法規の公式出題範囲の「大項目」ごとに、' + poolText + 'をまとめて解けます。各カードに中項目・小項目の内訳を示しています。'
+              : '大項目ごとに、' + poolText + 'をまとめて解けます。各カードのチップは、その大項目に含まれる分野です。') +
             'タップすると続きから解けます。</p><div class="cat-list">';
           CATS.forEach(function (c) {
             var st = categoryStats(c.name);
@@ -1160,8 +1306,8 @@
           html += '</div>';
         } else {
           html += '<h2 class="sec">試験回を選ぶ</h2>' +
-            '<p class="lead">1回分を通しで解けます。タップすると続きから解けます。</p><div class="session-list">';
-          DATA.sessions.forEach(function (s) {
+            '<p class="lead">1回分を通しで解けます。' + (pDef.years ? 'いまは対象期間（' + pDef.label + ' ・ ' + periodRangeText() + '）の回だけを表示しています。' : '') + 'タップすると続きから解けます。</p><div class="session-list">';
+          filteredSessions().forEach(function (s) {
             var st = sessionStats(s);
             var spct = st.totalQ ? Math.round(st.answered / st.totalQ * 100) : 0;
             var srate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
@@ -1178,6 +1324,7 @@
         html += sourceFooter();
         app.innerHTML = html;
         bindAccountCard();
+        bindPeriodSelector();
         document.getElementById("changeSubjectBtn").addEventListener("click", function () {
           view.tab = "subjects"; renderSubjects();
         });
@@ -1294,7 +1441,7 @@
         if (view.tab === "quiz" && view.category) {
           var cpos = 0;
           html += '<div class="qnav qnav-scroll">';
-          DATA.sessions.forEach(function (s) {
+          filteredSessions().forEach(function (s) {
             var inCat = [];
             s.groups.forEach(function (g) { g.questions.forEach(function (qq) { if (inCategory(qq, view.category)) inCat.push(qq); }); });
             if (!inCat.length) return;
@@ -1537,8 +1684,11 @@
       /* ----- 復習リスト ----- */
       function renderReviewList() {
         var ids = wrongIds();
+        var rDef = periodDef();
         var html = '<h2 class="sec">復習（間違えた問題）</h2>' +
-          '<p class="lead">間違えた問題は ' + ids.length + ' 問あります。正解すると、この一覧から消えます。</p>';
+          '<p class="lead">間違えた問題は ' + ids.length + ' 問あります。正解すると、この一覧から消えます。</p>' +
+          periodSelectorHtml() +
+          (rDef.years ? '<p class="lead" style="margin-top:10px">いまは対象期間（' + rDef.label + ' ・ ' + periodRangeText() + '）内の間違いだけを表示しています。期間外の間違いは、全期間に戻すと表示されます（記録は消えていません）。</p>' : '');
         if (!ids.length) {
           html += '<div class="empty">間違えた問題はありません。<br>問題を解くと、間違えたものがここに集まります。</div>';
         } else {
@@ -1553,6 +1703,7 @@
         }
         html += sourceFooter();
         app.innerHTML = html;
+        bindPeriodSelector();
         var start = document.getElementById("startReviewBtn");
         if (start) start.addEventListener("click", function () {
           view.reviewIds = wrongIds(); view.qIndex = 0; view.tab = "reviewQuiz"; render();
@@ -1570,8 +1721,12 @@
       /* ----- 進捗タブ ----- */
       function renderStats() {
         var p = curProfile();
+        var sDef = periodDef();
         var html = '<h2 class="sec">進捗（' + esc(p.name) + '）</h2>' +
-          '<p class="lead">' + esc(curSubject.name) + ' の大項目ごとの回答状況と正答率です。タップするとその大項目を解けます。他科目の進捗は科目選択画面で確認できます。</p><div class="cat-list" style="margin-top:0">';
+          '<p class="lead">' + esc(curSubject.name) + ' の大項目ごとの回答状況と正答率です。タップするとその大項目を解けます。他科目の進捗は科目選択画面で確認できます。</p>' +
+          periodSelectorHtml() +
+          (sDef.years ? '<p class="lead" style="margin-top:10px">下の集計は対象期間（' + sDef.label + ' ・ ' + periodRangeText() + '）内の問題だけを数えています。</p>' : '') +
+          '<div class="cat-list" style="margin-top:0">';
         CATS.forEach(function (c) {
           var st = categoryStats(c.name);
           if (!st.total) return;
@@ -1586,7 +1741,7 @@
         html += '</div>' +
           '<h2 class="sec">回ごとの進捗</h2>' +
           '<p class="lead">回ごとの回答状況と正答率です。</p><div class="list">';
-        DATA.sessions.forEach(function (s) {
+        filteredSessions().forEach(function (s) {
           var st = sessionStats(s);
           var spct = st.totalQ ? Math.round(st.answered / st.totalQ * 100) : 0;
           var srate = st.answered ? Math.round(st.correct / st.answered * 100) + '%' : '—';
@@ -1601,6 +1756,7 @@
           sourceFooter();
         app.innerHTML = html;
         bindAccountCard();
+        bindPeriodSelector();
         var cards = app.querySelectorAll(".session-card");
         for (var i = 0; i < cards.length; i++) {
           cards[i].addEventListener("click", function () { startSession(this.getAttribute("data-session")); });
