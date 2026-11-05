@@ -77,7 +77,8 @@
       }
       button { font: inherit; cursor: pointer; }
       .wrap { max-width: 760px; margin: 0 auto; padding: 0 14px 28px; }
-      body.in-quiz .wrap { padding-bottom: 130px; }
+      /* クイズ画面は末尾に固定バー（約76px＋セーフエリア）より大きい余白を確保し、最後の選択肢までバーに隠れず読めるようにする */
+      body.in-quiz .wrap { padding-bottom: calc(132px + env(safe-area-inset-bottom)); }
 
       /* ヘッダー */
       header.top {
@@ -292,6 +293,8 @@
         display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%;
         background: var(--surface); border: 1.5px solid var(--line); border-radius: 11px;
         padding: 15px 14px; min-height: 58px; color: var(--ink); font-size: var(--fs-opt); line-height: 1.7;
+        /* 選択肢は内容に合わせて伸ばし、テキストを一切切り捨てない */
+        height: auto; max-height: none; overflow: visible;
       }
       .opt .onum {
         flex-shrink: 0; color: var(--ink-soft);
@@ -321,9 +324,10 @@
       .blank-head .bresult { font-size: 14px; }
       .blank-head .bresult.ok { color: var(--ok); }
       .blank-head .bresult.ng { color: var(--ng); }
-      .blank-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      @media (max-width: 380px) { .blank-opts { grid-template-columns: 1fr; } }
-      .blank-opts .opt { padding: 12px 12px; min-height: 54px; font-size: calc(var(--fs-opt) - 1px); }
+      .blank-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+      /* スマホ幅では1列にして、狭さによる文字切れ・過度な縦伸びを避ける（広い画面は2列のまま） */
+      @media (max-width: 640px) { .blank-opts { grid-template-columns: 1fr; } }
+      .blank-opts .opt { padding: 12px 12px; min-height: 54px; font-size: calc(var(--fs-opt) - 1px); height: auto; max-height: none; overflow: visible; }
       .blank-opts .opt .onum { font-size: 21px; }
 
       .check-btn, .primary-btn {
