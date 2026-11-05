@@ -81,16 +81,16 @@
       }
       .top-in {
         max-width: 760px; margin: 0 auto; padding: 10px 14px;
-        display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 10px;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
       }
-      .top-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-      .top-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-      .top-right-row { display: flex; align-items: center; gap: 8px; }
+      .top-left { display: flex; align-items: center; min-width: 0; }
+      /* アカウント表示と文字サイズは、タグ行（1行目）の右側に横並びで収める */
+      .top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
       /* 資格切替タグ（アプリ名の下・小さく並べる） */
       .track-tags { display: flex; gap: 6px; }
       .track-tags button {
         border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-soft);
-        border-radius: 999px; padding: 2px 14px; min-height: 28px;
+        border-radius: 999px; padding: 2px 10px; min-height: 28px;
         font-size: 12.5px; font-weight: 800; line-height: 1.4;
       }
       .track-tags button.on {
@@ -102,14 +102,14 @@
       .head-font .hf-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-right: 1px; }
       .head-font button {
         border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
-        border-radius: 999px; padding: 1px 9px; min-height: 24px;
+        border-radius: 999px; padding: 1px 7px; min-height: 24px;
         font-size: 11.5px; font-weight: 700; line-height: 1.5;
       }
       .head-font button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
       /* 期間ボタン（資格タグの右横・現在の選択を短く表示） */
       .period-btn {
         border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--accent);
-        border-radius: 999px; padding: 2px 12px; min-height: 28px;
+        border-radius: 999px; padding: 2px 10px; min-height: 28px;
         font-size: 12.5px; font-weight: 800; line-height: 1.4; white-space: nowrap;
       }
       .period-btn:active { opacity: .65; }
@@ -124,10 +124,10 @@
       .period-row .pinfo b { display: block; }
       .period-row .pinfo span { font-size: 12px; color: var(--ink-soft); }
       .profile-chip {
-        margin-left: auto; display: flex; align-items: center; gap: 5px;
+        display: flex; align-items: center; gap: 5px;
         background: none; border: none; border-radius: 8px;
-        padding: 6px 2px 6px 6px; max-width: 52vw; min-height: 32px;
-        color: var(--ink-soft); font: inherit; text-align: left;
+        padding: 4px 2px 4px 4px; min-height: 32px;
+        color: var(--ink-soft); font: inherit; text-align: left; white-space: nowrap;
       }
       .profile-chip .pname { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .profile-chip .pchev { color: var(--ink-soft); font-size: 10px; flex-shrink: 0; }
@@ -161,6 +161,15 @@
         padding: 4px 13px; min-height: 32px; line-height: 1.4; white-space: nowrap;
       }
       .breadcrumb .cr-back:active { background: var(--accent-soft); }
+      /* パンくず行（2行目）の右端：現在位置と「問題を選ぶ」ボタン（問題画面のときだけ出す） */
+      .breadcrumb .cr-right { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding-left: 8px; }
+      .breadcrumb .cr-pos { font-size: 12px; font-weight: 800; color: var(--ink-soft); white-space: nowrap; }
+      .breadcrumb .cr-pick {
+        background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 999px;
+        color: var(--accent); font: inherit; font-size: 12px; font-weight: 800;
+        padding: 4px 12px; min-height: 32px; line-height: 1.4; white-space: nowrap;
+      }
+      .breadcrumb .cr-pick:active { opacity: .7; }
       @media (hover: hover) { .breadcrumb .cr-back:hover { border-color: var(--accent); color: var(--accent); } }
       @media (hover: hover) { .breadcrumb button.cr:hover { background: var(--accent-soft); } }
       /* 横幅が厳しい幅では、アプリ名（正式名称・省略しない）とゲスト項目を1段目に残し、
@@ -169,8 +178,8 @@
         .top-in { row-gap: 2px; }
       }
       @media (max-width: 480px) {
-        .top-in { gap: 6px; padding: 9px 10px; }
-        .profile-chip { max-width: 32vw; }
+        .top-in { gap: 6px; padding: 9px 8px; }
+        .head-font .hf-label { display: none; }
         .breadcrumb { font-size: 11px; }
         .breadcrumb button.cr, .breadcrumb span.cr { padding-left: 2px; padding-right: 2px; }
       }
@@ -231,7 +240,6 @@
       .cat-card .crate { font-weight: 800; font-size: 16px; color: var(--accent); }
       .cat-card .cprog { font-size: 11.5px; color: var(--ink-soft); }
       .cat-card .mini-bar { margin-left: auto; }
-      .qnav-scroll { max-height: 168px; overflow-y: auto; padding-right: 2px; }
 
       /* クイズ */
       .quiz-head { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -251,10 +259,13 @@
         background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
         padding: 20px 18px; box-shadow: var(--shadow); margin-top: 10px;
       }
-      .qmeta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+      /* カード内のタグは1行に圧縮する（長いカテゴリ名は省略表示） */
+      .qmeta { display: flex; gap: 6px; flex-wrap: nowrap; overflow: hidden; margin-bottom: 10px; }
+      .qmeta .tag { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+      .qmeta .tag.keep { flex-shrink: 0; }
       .tag {
         font-size: 12px; font-weight: 700; background: var(--chip); color: var(--ink-soft);
-        border-radius: 999px; padding: 2px 10px;
+        border-radius: 999px; padding: 2px 8px;
       }
       .tag.type { background: var(--accent-soft); color: var(--accent); }
       .stem { font-size: var(--fs-stem); font-weight: 700; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
@@ -551,19 +562,17 @@
           </div>
         </div>
         <div class="top-right">
-          <div class="top-right-row">
-            <button type="button" class="profile-chip" id="profileBtn" aria-label="プロフィールとアカウント">
-              <span class="login-dot" id="loginDot"></span>
-              <span class="pname" id="profileName">ゲスト</span>
-              <span class="pchev">▾</span>
-            </button>
-          </div>
           <div class="head-font" role="group" aria-label="文字サイズの切り替え">
             <span class="hf-label">文字</span>
             <button type="button" data-hfont="small">小</button>
             <button type="button" data-hfont="std">標準</button>
             <button type="button" data-hfont="large">大</button>
           </div>
+          <button type="button" class="profile-chip" id="profileBtn" aria-label="プロフィールとアカウント">
+            <span class="login-dot" id="loginDot"></span>
+            <span class="pname" id="profileName">ゲスト</span>
+            <span class="pchev">▾</span>
+          </button>
         </div>
         <nav class="breadcrumb" id="crumbs" aria-label="現在地"></nav>
       </div>
@@ -595,6 +604,15 @@
         <p>選んだ期間の問題だけが表示・出題されます（期間は各科目の最も新しい収録年度から数えます）。期間を変えても回答記録は消えません。選択は保存され、次回も引き継がれます。</p>
         <div id="periodList"></div>
         <button type="button" class="close-btn" id="closePeriodBtn">閉じる</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="qnavOverlay">
+      <div class="sheet">
+        <h3 id="qnavTitle">問題を選ぶ</h3>
+        <p>番号をタップすると、その問題へ移動します。緑は正解、赤は不正解した問題です。</p>
+        <div id="qnavBody"></div>
+        <button type="button" class="close-btn" id="closeQnavBtn">閉じる</button>
       </div>
     </div>
 
@@ -1064,6 +1082,79 @@
       }
       function openPeriodSheet() { renderPeriodList(); periodOverlay.classList.add("open"); }
       function closePeriodSheet() { periodOverlay.classList.remove("open"); }
+      /* ---------- 問題を選ぶシート（ヘッダー2行目のボタンから開く） ----------
+         問題番号グリッドは常時表示せず、このシートの中だけに出す。
+         グループ分け（カテゴリ学習＝回ごと／試験回学習＝問ごと／復習＝回ごと）と
+         正解・不正解の色分けは、従来の常時表示グリッドと同じにする。 */
+      var qnavOverlay = document.getElementById("qnavOverlay");
+      function buildQnavHtml() {
+        var r = results();
+        var idx = view.qIndex || 0;
+        var html = '<div class="qnav">';
+        if (view.tab === "reviewQuiz") {
+          var lastLabel = null;
+          (view.reviewIds || []).forEach(function (id, i) {
+            var m = QMAP[id];
+            if (!m) return;
+            if (m.session.sessionLabel !== lastLabel) {
+              lastLabel = m.session.sessionLabel;
+              html += '<span class="grouplabel">' + esc(lastLabel) + '</span>';
+            }
+            var res = r[id];
+            var cls = i === idx ? "cur" : (res ? (res.correct ? "done-ok" : "done-ng") : "");
+            html += '<button type="button" data-jump="' + i + '" class="' + cls + '">' + (i + 1) + '</button>';
+          });
+        } else if (view.category) {
+          var cpos = 0;
+          filteredSessions().forEach(function (s) {
+            var inCat = [];
+            s.groups.forEach(function (g) { g.questions.forEach(function (qq) { if (inCategory(qq, view.category)) inCat.push(qq); }); });
+            if (!inCat.length) return;
+            html += '<span class="grouplabel">' + esc(s.sessionLabel) + '</span>';
+            inCat.forEach(function (qq) {
+              var res2 = r[qq.id];
+              var cls2 = cpos === idx ? "cur" : (res2 ? (res2.correct ? "done-ok" : "done-ng") : "");
+              html += '<button type="button" data-jump="' + cpos + '" class="' + cls2 + '">' + (cpos + 1) + '</button>';
+              cpos++;
+            });
+          });
+        } else if (view.sessionId) {
+          var sess = findSession(view.sessionId);
+          var pos = 0;
+          sess.groups.forEach(function (g) {
+            html += '<span class="grouplabel">問' + g.no + '</span>';
+            g.questions.forEach(function (qq) {
+              var res3 = r[qq.id];
+              var cls3 = pos === idx ? "cur" : (res3 ? (res3.correct ? "done-ok" : "done-ng") : "");
+              html += '<button type="button" data-jump="' + pos + '" class="' + cls3 + '">' + (pos + 1) + '</button>';
+              pos++;
+            });
+          });
+        }
+        return html + '</div>';
+      }
+      function openQnavSheet() {
+        if (!DATA || !qnavOverlay) return;
+        var title = document.getElementById("qnavTitle");
+        var body = document.getElementById("qnavBody");
+        if (!title || !body) return;
+        var total = 0;
+        try { total = currentList().length; } catch (e) { total = 0; }
+        title.textContent = "問題を選ぶ" + (total ? "（" + (Math.min(view.qIndex || 0, Math.max(total - 1, 0)) + 1) + " / " + total + "）" : "");
+        body.innerHTML = buildQnavHtml();
+        var jumps = body.querySelectorAll("[data-jump]");
+        for (var i = 0; i < jumps.length; i++) {
+          jumps[i].addEventListener("click", function () {
+            view.qIndex = parseInt(this.getAttribute("data-jump"), 10);
+            closeQnavSheet();
+            render();
+          });
+        }
+        qnavOverlay.classList.add("open");
+        var cur = body.querySelector(".qnav button.cur");
+        if (cur) cur.scrollIntoView({ block: "center" });
+      }
+      function closeQnavSheet() { qnavOverlay.classList.remove("open"); }
       /* ---------- ヘッダーのパンくず（現在地・タップでその階層へ戻る） ---------- */
       var crumbHideQno = false;
       function crumbGo(level) {
@@ -1149,6 +1240,15 @@
         var items = breadcrumbItems();
         if (!items.length) { el.innerHTML = ""; el.style.display = "none"; return; }
         el.style.display = "";
+        // 問題画面では、パンくず行の右端に現在位置（2/80）と「問題を選ぶ」ボタンを出す。
+        // その場合、パンくず内の「・N問目」は現在位置と重複するので出さない。
+        var showPick = false, pickPos = "";
+        if (!crumbHideQno && (view.tab === "quiz" || view.tab === "reviewQuiz") && DATA && curSubject) {
+          try {
+            var total = currentList().length;
+            if (total > 0) { showPick = true; pickPos = (Math.min(view.qIndex || 0, total - 1) + 1) + " / " + total; }
+          } catch (e) { showPick = false; }
+        }
         el.innerHTML = (backTarget() ? '<button type="button" class="cr-back" id="crumbBackBtn">← 戻る</button>' : "") + items.map(function (it, i) {
           var s = (i ? '<span class="cr-sep" aria-hidden="true">›</span>' : "");
           if (it.cur || !it.level) {
@@ -1156,15 +1256,18 @@
           } else {
             s += '<button type="button" class="cr" data-crumb="' + esc(it.level) + '" title="' + esc(it.label) + '">' + esc(it.label) + "</button>";
           }
-          if (it.qno) s += '<span class="cr-qno">・' + esc(it.qno) + "</span>";
+          if (it.qno && !showPick) s += '<span class="cr-qno">・' + esc(it.qno) + "</span>";
           return s;
-        }).join("");
+        }).join("") + (showPick ? '<span class="cr-right"><span class="cr-pos">' + pickPos + '</span>' +
+          '<button type="button" class="cr-pick" id="crumbPickBtn">問題を選ぶ</button></span>' : "");
         var btns = el.querySelectorAll("[data-crumb]");
         for (var i = 0; i < btns.length; i++) {
           btns[i].addEventListener("click", function () { crumbGo(this.getAttribute("data-crumb")); });
         }
         var bb = document.getElementById("crumbBackBtn");
         if (bb) bb.addEventListener("click", goBackOne);
+        var pb = document.getElementById("crumbPickBtn");
+        if (pb) pb.addEventListener("click", openQnavSheet);
       }
 
       /* ---------- 文字サイズ（端末内に保存・全プロフィール共通） ---------- */
@@ -1701,50 +1804,16 @@
         if (saved && t.picked === undefined && q.type !== "fill") t.picked = saved.picked;
         if (saved && q.type === "fill" && !t.blankPicks) t.blankPicks = saved.blankPicks || {};
 
-        var html = '<div class="quiz-head">' +
-          '<span class="qtitle">' + esc(currentTitle()) + '</span>' +
-          '<span class="qcount">' + (idx + 1) + ' / ' + list.length + '</span></div>';
-
-        // 問題ジャンプ
-        if (view.tab === "quiz" && view.category) {
-          var cpos = 0;
-          html += '<div class="qnav qnav-scroll">';
-          filteredSessions().forEach(function (s) {
-            var inCat = [];
-            s.groups.forEach(function (g) { g.questions.forEach(function (qq) { if (inCategory(qq, view.category)) inCat.push(qq); }); });
-            if (!inCat.length) return;
-            html += '<span class="grouplabel">' + esc(s.sessionLabel) + '</span>';
-            inCat.forEach(function (qq) {
-              var res = r[qq.id];
-              var cls = cpos === idx ? "cur" : (res ? (res.correct ? "done-ok" : "done-ng") : "");
-              html += '<button type="button" data-jump="' + cpos + '" class="' + cls + '">' + (cpos + 1) + '</button>';
-              cpos++;
-            });
-          });
-          html += '</div>';
-        } else if (view.tab === "quiz") {
-          var sess = findSession(view.sessionId);
-          var pos = 0;
-          html += '<div class="qnav">';
-          sess.groups.forEach(function (g) {
-            html += '<span class="grouplabel">問' + g.no + '</span>';
-            g.questions.forEach(function (qq) {
-              var res = r[qq.id];
-              var cls = pos === idx ? "cur" : (res ? (res.correct ? "done-ok" : "done-ng") : "");
-              html += '<button type="button" data-jump="' + pos + '" class="' + cls + '">' + (pos + 1) + '</button>';
-              pos++;
-            });
-          });
-          html += '</div>';
-        }
-
+        // 見出し行（カテゴリ名＋現在位置）と問題番号グリッドは常時表示しない。
+        // 現在位置と「問題を選ぶ」ボタンはヘッダー2行目（パンくず行）の右端に出し、
+        // 番号グリッドはそのボタンから開くシートの中だけに表示する（buildQnavHtml）。
+        // カード内のタグも1行に圧縮する：科目名はパンくずと重複するので出さない。
         var majorLabel = categoryShort(q.cat);
-        html += '<div class="qcard"><div class="qmeta">' +
-          '<span class="tag">問' + meta.groupNo + '（' + esc(meta.session.sessionLabel) + '）</span>' +
-          '<span class="tag">' + esc(curSubject.name) + '</span>' +
+        var html = '<div class="qcard"><div class="qmeta">' +
+          '<span class="tag keep">問' + meta.groupNo + '（' + esc(meta.session.sessionLabel) + '）</span>' +
           '<span class="tag">' + esc(majorLabel) + '</span>' +
           (q.cat && q.cat !== majorLabel ? '<span class="tag">' + esc(q.cat) + '</span>' : '') +
-          '<span class="tag type">' + (q.type === "combo" ? "複合選択" : q.type === "fill" ? "穴埋め" : "選択") + '</span>' +
+          '<span class="tag type keep">' + (q.type === "combo" ? "複合選択" : q.type === "fill" ? "穴埋め" : "選択") + '</span>' +
           '</div>';
 
         html += '<div class="stem">' + esc(q.stem) + '</div>';
@@ -1799,13 +1868,6 @@
         app.innerHTML = html;
 
         // イベント
-        var jumps = app.querySelectorAll("[data-jump]");
-        for (var j = 0; j < jumps.length; j++) {
-          jumps[j].addEventListener("click", function () {
-            view.qIndex = parseInt(this.getAttribute("data-jump"), 10);
-            render();
-          });
-        }
         if (q.type !== "fill" && !judged) {
           var opts = app.querySelectorAll("[data-opt]");
           for (var k = 0; k < opts.length; k++) {
@@ -1939,7 +2001,7 @@
           '<div class="session-result"><div class="big">' + st.correct + ' <small>/ ' + st.totalQ + ' 問 正解</small></div>' +
           '<div class="bigrate">' + rate + '%<small> 正答率</small></div>' +
           '<p>回答済み ' + st.answered + ' 問</p>' +
-          (st.answered < st.totalQ ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (st.totalQ - st.answered) + ' 問あります。問題番号から選んで続きを解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この回は全問回答済みです。間違えた問題はトップの「復習（間違えた問題）」から解き直せます。</p>') +
+          (st.answered < st.totalQ ? '<p style="color:var(--ink-soft);font-size:14px">未回答の問題が ' + (st.totalQ - st.answered) + ' 問あります。上の「問題を選ぶ」ボタンから選んで続きを解けます。</p>' : '<p style="color:var(--ink-soft);font-size:14px">この回は全問回答済みです。間違えた問題はトップの「復習（間違えた問題）」から解き直せます。</p>') +
           '</div>' + sourceFooter();
         app.innerHTML = html;
       }
@@ -2296,11 +2358,14 @@
       });
 
       /* ---------- プロフィール ---------- */
+      /* ヘッダーのアカウント表示は最小限にする：メールアドレスは出さず、
+         ログイン状態が分かる短い表示だけにする（緑ドット＋「ログイン中」／「ゲスト」）。
+         メールアドレス・同期状態などの詳細は、タップで開くシート側にだけ出す。 */
       function syncProfileHeader() {
         var el = document.getElementById("profileName");
         var dot = document.getElementById("loginDot");
         if (authUser) {
-          el.textContent = authUser.email || "ログイン中";
+          el.textContent = "ログイン中";
           if (dot) dot.className = "login-dot on";
         } else {
           el.textContent = "ゲスト";
@@ -2372,6 +2437,8 @@
       document.getElementById("periodBtn").addEventListener("click", openPeriodSheet);
       document.getElementById("closePeriodBtn").addEventListener("click", closePeriodSheet);
       periodOverlay.addEventListener("click", function (e) { if (e.target === periodOverlay) closePeriodSheet(); });
+      document.getElementById("closeQnavBtn").addEventListener("click", closeQnavSheet);
+      qnavOverlay.addEventListener("click", function (e) { if (e.target === qnavOverlay) closeQnavSheet(); });
       syncPeriodBtn();
 
       /* ---------- 起動：毎回トップページ（選択中の資格のメニュー）から始める ----------
