@@ -292,6 +292,31 @@
       }
       .retry-btn:active { transform: scale(.985); background: var(--accent-soft); }
       @media (hover: hover) { .retry-btn:hover { background: var(--accent-soft); } }
+      /* 不正解の問題だけ、問題画面の一番上に常時表示する解き直しバー：
+         ヘッダー（sticky）の直下に sticky で張り付き、下までスクロールしなくても押せる。
+         top の値は描画時に JS がヘッダーの実高さへ合わせる（下の値は2行ヘッダーの初期目安） */
+      .top-retry-bar {
+        position: sticky; top: 84px; z-index: 15;
+        background: var(--bg);
+        padding: 10px 0 8px;
+      }
+      .top-retry-btn {
+        width: 100%; min-height: 52px;
+        display: flex; align-items: center; justify-content: center; gap: 9px;
+        background: var(--surface); color: var(--ng);
+        border: 1.5px solid var(--ng); border-radius: 12px;
+        font-weight: 800; font-size: 15.5px;
+        box-shadow: var(--shadow);
+        transition: transform .12s ease, background .15s ease;
+      }
+      .top-retry-btn .trb-badge {
+        font-size: 12px; font-weight: 800; line-height: 1.5;
+        background: var(--ng-bg); color: var(--ng);
+        border-radius: 999px; padding: 2px 9px; white-space: nowrap;
+      }
+      .top-retry-btn:active { transform: scale(.985); background: var(--ng-bg); }
+      @media (hover: hover) { .top-retry-btn:hover { background: var(--ng-bg); } }
+      @media (prefers-reduced-motion: reduce) { .top-retry-btn { transition: none; } }
       .stem { font-size: var(--fs-stem); font-weight: 700; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
       .statements { margin: 14px 0 4px; display: grid; gap: 10px; }
       .statement {
@@ -1959,7 +1984,17 @@
         // 番号グリッドはそのボタンから開くシートの中だけに表示する（buildQnavHtml）。
         // カード内のタグも1行に圧縮する：科目名はパンくずと重複するので出さない。
         var majorLabel = categoryShort(q.cat);
-        var html = '<div class="qcard"><div class="qmeta">' +
+        // 最新の保存結果が「不正解」の問題を判定表示で開いているときだけ、問題画面の一番上に
+        // 「もう一度解く」を常時表示（sticky）する。正解済み・未回答では出さず、
+        // 解き直し中は judged が false になるため自動で消える
+        var showTopRetry = !!(saved && !saved.correct && judged);
+        var html = "";
+        if (showTopRetry) {
+          html += '<div class="top-retry-bar" id="topRetryBar">' +
+            '<button type="button" class="top-retry-btn" id="topRetryBtn" aria-label="間違えた問題をもう一度解く">' +
+            '<span class="trb-badge">× 不正解</span>もう一度解く</button></div>';
+        }
+        html += '<div class="qcard"><div class="qmeta">' +
           '<span class="tag keep">問' + meta.groupNo + '（' + esc(meta.session.sessionLabel) + '）</span>' +
           '<span class="tag">' + esc(majorLabel) + '</span>' +
           (q.cat && q.cat !== majorLabel ? '<span class="tag">' + esc(q.cat) + '</span>' : '') +
@@ -2038,15 +2073,36 @@
           }
         }
         if (q.type === "fill") bindFill(q, judged);
-        var retry = document.getElementById("retryBtn");
-        if (retry) retry.addEventListener("click", function () {
-          // 解き直し開始：保存済みの記録には触れず、画面状態（選択・判定）だけをリセットする。
-          // 再回答して判定された時点で、記録は最新結果に上書きされる
+        // 解き直し開始（結果表示下のボタンと、上部常時表示ボタンで共用）：
+        // 保存済みの記録には触れず、画面状態（選択・判定）だけをリセットする。
+        // 再回答して判定された時点で、記録は最新結果に上書きされる
+        var startRetry = function () {
           var t2 = transient[q.id] || (transient[q.id] = {});
           t2.fresh = true; t2.judged = false;
           delete t2.picked; delete t2.blankPicks;
           render();
-        });
+        };
+        var retry = document.getElementById("retryBtn");
+        if (retry) retry.addEventListener("click", startRetry);
+        var topRetry = document.getElementById("topRetryBtn");
+        if (topRetry) topRetry.addEventListener("click", startRetry);
+        // 上部バーの sticky 位置を、2行構成ヘッダーの実高さの直下に合わせる
+        var topBar = document.getElementById("topRetryBar");
+        if (topBar) {
+          var syncTopBar = function () {
+            var hdr = document.querySelector("header.top");
+            if (hdr) topBar.style.top = Math.max(0, hdr.offsetHeight - 1) + "px";
+          };
+          syncTopBar();
+          if (!window.__topRetryResize) {
+            window.__topRetryResize = true;
+            window.addEventListener("resize", function () {
+              var b = document.getElementById("topRetryBar");
+              var h = document.querySelector("header.top");
+              if (b && h) b.style.top = Math.max(0, h.offsetHeight - 1) + "px";
+            });
+          }
+        }
         var prev = document.getElementById("prevBtn");
         if (prev) prev.addEventListener("click", function () { view.qIndex--; render(); });
         var next = document.getElementById("nextBtn");
