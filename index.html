@@ -275,6 +275,23 @@
         border-radius: 999px; padding: 2px 8px;
       }
       .tag.type { background: var(--accent-soft); color: var(--accent); }
+      /* 回答済みバッジ：開いた時点で「解いたことがある」ことと前回の結果を示す */
+      .answered-badge {
+        display: inline-block; font-size: 12.5px; font-weight: 800; line-height: 1.5;
+        border-radius: 999px; padding: 3px 11px; margin-bottom: 10px;
+      }
+      .answered-badge.ok { background: var(--ok-bg); color: var(--ok); }
+      .answered-badge.ng { background: var(--ng-bg); color: var(--ng); }
+      /* 解き直しボタン：判定表示の下に出し、タップで未回答状態に戻して再回答できるようにする */
+      .retry-btn {
+        width: 100%; margin-top: 14px; min-height: 50px;
+        background: var(--surface); color: var(--accent);
+        border: 1.5px solid var(--accent); border-radius: 12px;
+        font-weight: 800; font-size: 15px;
+        transition: transform .12s ease, background .15s ease;
+      }
+      .retry-btn:active { transform: scale(.985); background: var(--accent-soft); }
+      @media (hover: hover) { .retry-btn:hover { background: var(--accent-soft); } }
       .stem { font-size: var(--fs-stem); font-weight: 700; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
       .statements { margin: 14px 0 4px; display: grid; gap: 10px; }
       .statement {
@@ -1928,8 +1945,10 @@
         var r = results();
         var saved = r[q.id];
         var t = transient[q.id] || (transient[q.id] = {});
-        // 復習で「解き直し」として開いた問題は、保存済みの結果があっても未回答として再挑戦できる
-        var freshRetry = view.tab === "reviewQuiz" && !!t.fresh;
+        // 「解き直し」として開いた問題は、保存済みの結果があっても未回答として再挑戦できる。
+        // 復習モードのほか、通常フローでも判定表示の「もう一度解く」から t.fresh が立つ。
+        // 記録（results）は再回答して判定されるまで消えず、その時点で最新結果に上書きされる
+        var freshRetry = !!t.fresh;
         // 保存済みの結果がある問題は、開いた時点で判定表示にする（解き直し中の問題は除く）
         var judged = freshRetry ? !!t.judged : (!!saved || !!t.judged);
         if (!freshRetry && saved && t.picked === undefined && q.type !== "fill") t.picked = saved.picked;
@@ -1946,6 +1965,13 @@
           (q.cat && q.cat !== majorLabel ? '<span class="tag">' + esc(q.cat) + '</span>' : '') +
           '<span class="tag type keep">' + (q.type === "combo" ? "複合選択" : q.type === "fill" ? "穴埋め" : "選択") + '</span>' +
           '</div>';
+
+        // 回答済みの問題は、再回答する前の状態で「回答済み＋前回の結果」が分かる表示を出す。
+        // この画面状態で解き直し中（t.fresh）のときは、その旨も添える
+        if (saved && !t.judged) {
+          html += '<div><span class="answered-badge ' + (saved.correct ? "ok" : "ng") + '">回答済み（前回：' +
+            (saved.correct ? "○ 正解" : "× 不正解") + '）' + (freshRetry ? " ・解き直し中" : "") + '</span></div>';
+        }
 
         html += '<div class="stem">' + esc(q.stem) + '</div>';
 
@@ -1979,7 +2005,11 @@
           html += '</div>';
         }
 
-        if (judged) html += resultBox(q, saved, t);
+        if (judged) {
+          html += resultBox(q, saved, t);
+          // 回答済みの問題は何回でも解き直せる：記録は残したまま、画面状態だけ未回答に戻す
+          if (saved) html += '<button type="button" class="retry-btn" id="retryBtn">もう一度解く</button>';
+        }
         html += '</div>';
 
         // 画面下の固定アクションバー：主要ボタンを親指の届く位置に集約
@@ -2008,6 +2038,15 @@
           }
         }
         if (q.type === "fill") bindFill(q, judged);
+        var retry = document.getElementById("retryBtn");
+        if (retry) retry.addEventListener("click", function () {
+          // 解き直し開始：保存済みの記録には触れず、画面状態（選択・判定）だけをリセットする。
+          // 再回答して判定された時点で、記録は最新結果に上書きされる
+          var t2 = transient[q.id] || (transient[q.id] = {});
+          t2.fresh = true; t2.judged = false;
+          delete t2.picked; delete t2.blankPicks;
+          render();
+        });
         var prev = document.getElementById("prevBtn");
         if (prev) prev.addEventListener("click", function () { view.qIndex--; render(); });
         var next = document.getElementById("nextBtn");
