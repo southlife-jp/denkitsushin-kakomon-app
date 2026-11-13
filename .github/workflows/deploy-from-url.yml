@@ -7,17 +7,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Download latest app file
-      run: |
-        curl -L -o index.html "https://muse.ai/files/1388367334360044/1168343608874566/1i2w63932y2jnvf2xutcbkgj/space.html"
-        ls -la index.html
-        test $(stat -c%s index.html) -gt 20000000
-    - name: Commit and push
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        rm -f space.html
-        git add -A
-        git commit -m "Deploy latest app build" || echo "no changes"
-        git push
+      - uses: actions/checkout@v4
+      - name: Download latest app file
+        run: |
+          curl -L -o index.html "https://muse.ai/files/1388367334360044/1802427441040194/4h0j7fukgbu7nbiudb62ursd/space.html"
+          ls -la index.html
+          test $(stat -c%s index.html) -gt 20000000
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          rm -f space.html
+          git add -A
+          git commit -m "Deploy latest app build" || echo "no changes"
+          git push
