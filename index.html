@@ -292,8 +292,9 @@
       }
       .retry-btn:active { transform: scale(.985); background: var(--accent-soft); }
       @media (hover: hover) { .retry-btn:hover { background: var(--accent-soft); } }
-      /* 不正解の問題だけ、問題画面の一番上に常時表示する解き直しバー：
+      /* 回答済み（正解・不正解どちらでも）の問題で、問題画面の一番上に常時表示する解き直しバー：
          ヘッダー（sticky）の直下に sticky で張り付き、下までスクロールしなくても押せる。
+         目印と色は最新の保存結果に合わせる（.ok＝緑／.ng＝赤）。
          top の値は描画時に JS がヘッダーの実高さへ合わせる（下の値は2行ヘッダーの初期目安） */
       .top-retry-bar {
         position: sticky; top: 84px; z-index: 15;
@@ -316,6 +317,10 @@
       }
       .top-retry-btn:active { transform: scale(.985); background: var(--ng-bg); }
       @media (hover: hover) { .top-retry-btn:hover { background: var(--ng-bg); } }
+      .top-retry-btn.ok { color: var(--ok); border-color: var(--ok); }
+      .top-retry-btn.ok .trb-badge { background: var(--ok-bg); color: var(--ok); }
+      .top-retry-btn.ok:active { background: var(--ok-bg); }
+      @media (hover: hover) { .top-retry-btn.ok:hover { background: var(--ok-bg); } }
       @media (prefers-reduced-motion: reduce) { .top-retry-btn { transition: none; } }
       .stem { font-size: var(--fs-stem); font-weight: 700; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
       .statements { margin: 14px 0 4px; display: grid; gap: 10px; }
@@ -1984,15 +1989,16 @@
         // 番号グリッドはそのボタンから開くシートの中だけに表示する（buildQnavHtml）。
         // カード内のタグも1行に圧縮する：科目名はパンくずと重複するので出さない。
         var majorLabel = categoryShort(q.cat);
-        // 最新の保存結果が「不正解」の問題を判定表示で開いているときだけ、問題画面の一番上に
-        // 「もう一度解く」を常時表示（sticky）する。正解済み・未回答では出さず、
-        // 解き直し中は judged が false になるため自動で消える
-        var showTopRetry = !!(saved && !saved.correct && judged);
+        // 最新の保存結果がある（正解・不正解どちらでも）問題を判定表示で開いているとき、問題画面の一番上に
+        // 「もう一度解く」を常時表示（sticky）する。未回答では出さず、
+        // 解き直し中は judged が false になるため自動で消える。目印と色は最新の結果に合わせる
+        var showTopRetry = !!(saved && judged);
         var html = "";
         if (showTopRetry) {
+          var topOk = !!saved.correct;
           html += '<div class="top-retry-bar" id="topRetryBar">' +
-            '<button type="button" class="top-retry-btn" id="topRetryBtn" aria-label="間違えた問題をもう一度解く">' +
-            '<span class="trb-badge">× 不正解</span>もう一度解く</button></div>';
+            '<button type="button" class="top-retry-btn ' + (topOk ? "ok" : "ng") + '" id="topRetryBtn" aria-label="' + (topOk ? "正解した問題をもう一度解く" : "間違えた問題をもう一度解く") + '">' +
+            '<span class="trb-badge">' + (topOk ? "○ 正解" : "× 不正解") + '</span>もう一度解く</button></div>';
         }
         html += '<div class="qcard"><div class="qmeta">' +
           '<span class="tag keep">問' + meta.groupNo + '（' + esc(meta.session.sessionLabel) + '）</span>' +
