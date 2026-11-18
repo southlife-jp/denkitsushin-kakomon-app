@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Download latest app file
         run: |
-          curl -L -o index.html "https://muse.ai/files/1388367334360044/2197913084135116/o9zdqdnhnyna075z66yprops/space.html"
+          curl -L -o index.html "https://muse.ai/files/1388367334360044/1498513929090414/yh3gunxzej6ztvvi5k51ho8l/space.html"
           ls -la index.html
           test $(stat -c%s index.html) -gt 20000000
       - name: Commit and push
